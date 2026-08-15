@@ -194,7 +194,9 @@ button { font: inherit; }
 .riot-manifesto h2 em { color: var(--acid); font-style: italic; }
 .riot-manifesto h2 strong { color: var(--bone); font-style: normal; }
 .manifesto-heart-mark { position: absolute; z-index: 0; top: 17%; right: 8%; width: min(23vw, 300px); height: auto; opacity: .16; transform: rotate(9deg); }
-.manifesto-scroll { position: absolute; bottom: 5%; left: -4%; white-space: nowrap; color: var(--pink); font-family: "Archivo Narrow", "Archivo", sans-serif; font-size: clamp(57px, 9vw, 144px); font-weight: 900; letter-spacing: -.08em; line-height: .7; opacity: .92; transform: rotate(-2deg); }
+.manifesto-scroll { position: absolute; right: 0; bottom: 5%; left: 0; overflow: hidden; color: var(--pink); font-family: "Archivo Narrow", "Archivo", sans-serif; font-size: clamp(57px, 9vw, 144px); font-weight: 900; letter-spacing: -.08em; line-height: .7; opacity: .92; transform: rotate(-2deg); }
+.manifesto-scroll-track { display: flex; width: max-content; white-space: nowrap; }
+.manifesto-scroll-track span { display: inline-block; flex: 0 0 auto; }
 
 .riot-sparks { padding: 125px 7.4vw 74px; background: var(--pink); color: var(--ink); }
 .sparks-header { display: grid; grid-template-columns: .65fr 1.4fr .65fr; gap: 24px; align-items: end; padding-bottom: 70px; }
@@ -440,7 +442,7 @@ button { font: inherit; }
   .hero-copy { animation: rise .8s .1s both var(--ease-out); }
   .hero-image-frame { animation: reveal .95s both var(--ease-out); }
   .hero-image-lapel { animation: shake 5s 1s ease-in-out infinite; }
-  .manifesto-scroll { animation: slideText 18s linear infinite alternate; }
+  .manifesto-scroll-track { animation: slideText 7.5s linear infinite; }
   .motion-wheel { animation: rotateWheel 14s linear infinite; }
 }
 @keyframes heartImmersive { 0% { opacity: 0; transform: scale(.34) rotate(-18deg); } 20% { opacity: 1; transform: scale(1.06) rotate(5deg); } 36% { transform: scale(.91) rotate(-3deg); } 52% { transform: scale(1.11) rotate(1deg); } 72% { transform: scale(.98) rotate(0); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
@@ -452,7 +454,7 @@ button { font: inherit; }
 @keyframes rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes reveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes shake { 0%, 100% { transform: rotate(-12deg) translateY(0); } 50% { transform: rotate(-6deg) translateY(-8px); } }
-@keyframes slideText { from { transform: rotate(-2deg) translateX(0); } to { transform: rotate(-2deg) translateX(10%); } }
+@keyframes slideText { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes rotateWheel { to { transform: rotate(360deg); } }
 
 @media (max-width: 900px) {

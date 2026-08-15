@@ -167,9 +167,9 @@ export default function Home() {
           <div className="hero-copy">
             <p className="riot-kicker"><i /> {hero.kicker}</p>
             <h1>
-              <span>{hero.lineOne}</span>
-              <span>{hero.lineTwo}</span>
-              <em>{hero.accent}</em>
+              <span style={{color: '#ffffff'}}>{hero.lineOne}</span>
+              <span style={{color: '#ffffff'}}>{hero.lineTwo}</span>
+              <em style={{color: '#ffffff'}}>{hero.accent}</em>
             </h1>
             <p className="hero-caption">{hero.caption}</p>
           </div>
@@ -191,11 +191,11 @@ export default function Home() {
           <div className="manifesto-top"><span>MANIFIESTO 001</span><span>NO VENIMOS A QUEDARNOS QUIETAS</span></div>
           <div className="manifesto-punch">
             <p>Tu práctica no tiene que ser silenciosa para ser profunda.</p>
-            <h2><span>Menos</span><em>reglas.</em><br /><strong>Más</strong> cuerpo.</h2>
+            <h2 style={{fontSize: '60px'}}><span style={{fontSize: '60px'}}>Menos</span><em style={{fontSize: '60px'}}>reglas.</em><br style={{fontSize: '60px'}} /><strong style={{fontSize: '60px'}}>Más</strong>{" "}cuerpo</h2>
             <p>Pink es técnica con música alta. Concentración con risa. Precisión con una energía que no se puede fingir.</p>
           </div>
           <img className="manifesto-heart-mark" src={heartMark} alt="" aria-hidden="true" />
-          <div className="manifesto-scroll" aria-hidden="true"><span>NO BAJES EL VOLUMEN · SUBE LA FUERZA · NO BAJES EL VOLUMEN ·</span></div>
+          <div className="manifesto-scroll" aria-hidden="true"><div className="manifesto-scroll-track"><span>NO BAJES EL VOLUMEN · SUBE LA FUERZA · NO BAJES EL VOLUMEN · SUBE LA FUERZA · NO BAJES EL VOLUMEN · SUBE LA FUERZA · </span><span>NO BAJES EL VOLUMEN · SUBE LA FUERZA · NO BAJES EL VOLUMEN · SUBE LA FUERZA · NO BAJES EL VOLUMEN · SUBE LA FUERZA · </span></div></div>
         </section>
 
         <section className="riot-sparks" id="clases">
