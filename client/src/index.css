@@ -113,7 +113,7 @@ button { font: inherit; }
 .pink-loader-active { opacity: 1; visibility: visible; transition: opacity .12s var(--ease-out); }
 .pink-loader-leave { pointer-events: none; }
 .pink-loader-grid { position: absolute; inset: 0; background-image: linear-gradient(90deg, transparent calc(50% - .5px), rgba(248,248,243,.38) calc(50% - .5px), rgba(248,248,243,.38) calc(50% + .5px), transparent calc(50% + .5px)), linear-gradient(0deg, transparent calc(64% - .5px), rgba(248,248,243,.24) calc(64% - .5px), rgba(248,248,243,.24) calc(64% + .5px), transparent calc(64% + .5px)); opacity: .5; }
-.pink-loader-ghost { position: absolute; z-index: 0; top: -7vw; left: -1vw; color: var(--pink); font-family: "Archivo Narrow", "Arial Narrow", sans-serif; font-size: clamp(150px, 28vw, 440px); font-weight: 900; letter-spacing: -.15em; line-height: .63; opacity: .96; transform: skewY(-7deg); }
+.pink-loader-ghost { position: absolute; z-index: 0; top: .5vw; left: -1vw; color: var(--pink); font-family: "Archivo Narrow", "Arial Narrow", sans-serif; font-size: clamp(150px, 28vw, 440px); font-weight: 900; letter-spacing: -.15em; line-height: .63; opacity: .96; transform: skewY(-7deg); }
 .pink-loader-arc { position: absolute; border: 1px solid rgba(248,248,243,.38); border-radius: 50%; }
 .pink-loader-arc-one { top: -24vw; right: -8vw; width: 58vw; height: 58vw; }
 .pink-loader-arc-two { bottom: -29vw; left: -17vw; width: 52vw; height: 52vw; border-color: var(--acid); }
@@ -130,7 +130,7 @@ button { font: inherit; }
 .riot-mark { display: inline-flex; align-items: center; gap: 7px; width: fit-content; font-family: "Bodoni Moda", Georgia, serif; line-height: .68; letter-spacing: -1.8px; }
 .riot-mark-original { width: 182px; height: 46px; overflow: hidden; }
 .riot-wordmark-crop { display: block; width: 100%; height: 100%; overflow: hidden; }
-.riot-wordmark-crop img { display: block; width: 193px; max-width: none; height: auto; margin-top: -35px; margin-left: -7px; }
+.riot-wordmark-crop img { display: block; width: 193px; max-width: none; height: auto; margin-top: -25px; margin-left: -7px; }
 .riot-heart-mark { width: 35px; height: 35px; object-fit: contain; }
 .riot-mark span { display: flex; flex-direction: column; font-size: 26px; }
 .riot-mark b { font-weight: 700; }
