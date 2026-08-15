@@ -15,13 +15,13 @@ import {
   X,
 } from "lucide-react";
 
-const wordmarkLogo = "/manus-storage/pink-pilates-wordmark-bubblegum_a7112b99.png";
-const heartMark = "/manus-storage/pink-pilates-heart-bubblegum_ad44e327.png";
-const originalLoaderHeart = "/manus-storage/pink-pilates-heart-bubblegum_ad44e327.png";
-const heroImage = "/manus-storage/pink-riot-hero_1682d92e.jpg";
-const motionImage = "/manus-storage/pink-riot-motion-v2_08c7d0c2.jpg";
-const studioImage = "/manus-storage/pink-riot-studio-v2_6396fe15.jpg";
-const objectsImage = "/manus-storage/pink-riot-objects-v2_0d8a98cb.jpg";
+const wordmarkLogo = "/assets/pink/pink-pilates-wordmark-bubblegum.png";
+const heartMark = "/assets/pink/pink-pilates-heart-bubblegum.png";
+const originalLoaderHeart = "/assets/pink/pink-pilates-heart-bubblegum.png";
+const heroImage = "/assets/pink/pink-riot-hero.jpg";
+const motionImage = "/assets/pink/pink-riot-motion-v2.jpg";
+const studioImage = "/assets/pink/pink-riot-studio-v2.jpg";
+const objectsImage = "/assets/pink/pink-riot-objects-v2.jpg";
 
 const sparks = [
   { index: "01", primary: "Mueve", accent: "fuerte.", copy: "Reformer y apparatus para una fuerza que se construye desde adentro.", tag: "STUDIO PILATES" },
