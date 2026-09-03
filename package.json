@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "concurrently -n web,api -c magenta,cyan \"vite --host\" \"tsx watch server/index.ts\"",
     "build": "vite build",
