@@ -36,11 +36,11 @@ export default function Resumen() {
   const avisos = [
     d.porVerificar > 0 && {
       texto: `${d.porVerificar} plan(es) de estudiante esperando que verifiques el certificado de alumno regular.`,
-      href: "/panel/alumnas?estado=por_verificar",
+      href: "/admin/alumnas?estado=por_verificar",
     },
     d.planesPorVencer > 0 && {
       texto: `${d.planesPorVencer} alumna(s) con el plan venciendo esta semana.`,
-      href: "/panel/alumnas?estado=por_vencer",
+      href: "/admin/alumnas?estado=por_vencer",
     },
   ].filter(Boolean) as Array<{ texto: string; href: string }>;
 
@@ -135,7 +135,7 @@ export default function Resumen() {
         <TarjetaCabecera
           titulo="Clases de hoy"
           sub={`${d.clasesHoy.length} clase(s) programadas`}
-          acciones={<Link href="/panel/agenda" className="pp-btn chico">Ver agenda completa <ArrowRight size={15} /></Link>}
+          acciones={<Link href="/admin/agenda" className="pp-btn chico">Ver agenda completa <ArrowRight size={15} /></Link>}
         />
         <div className="pp-tarjeta-cuerpo sin-relleno">
           {d.clasesHoy.length === 0 ? (

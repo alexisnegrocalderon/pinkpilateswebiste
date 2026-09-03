@@ -11,31 +11,31 @@ const NAV = [
   {
     grupo: "Operación",
     items: [
-      { href: "/panel", icono: LayoutDashboard, texto: "Resumen" },
-      { href: "/panel/agenda", icono: CalendarDays, texto: "Agenda" },
-      { href: "/panel/horarios", icono: ClipboardList, texto: "Horario semanal" },
+      { href: "/admin", icono: LayoutDashboard, texto: "Resumen" },
+      { href: "/admin/agenda", icono: CalendarDays, texto: "Agenda" },
+      { href: "/admin/horarios", icono: ClipboardList, texto: "Horario semanal" },
     ],
   },
   {
     grupo: "Negocio",
     items: [
-      { href: "/panel/alumnas", icono: Users, texto: "Alumnas" },
-      { href: "/panel/planes", icono: Tag, texto: "Planes y precios" },
-      { href: "/panel/pagos", icono: CreditCard, texto: "Pagos" },
+      { href: "/admin/alumnas", icono: Users, texto: "Alumnas" },
+      { href: "/admin/planes", icono: Tag, texto: "Planes y precios" },
+      { href: "/admin/pagos", icono: CreditCard, texto: "Pagos" },
     ],
   },
   {
     grupo: "Crecimiento",
     items: [
-      { href: "/panel/emails", icono: Mail, texto: "Emails" },
-      { href: "/panel/reportes", icono: BarChart3, texto: "Reportes" },
+      { href: "/admin/emails", icono: Mail, texto: "Emails" },
+      { href: "/admin/reportes", icono: BarChart3, texto: "Reportes" },
     ],
   },
   {
     grupo: "Estudio",
     items: [
-      { href: "/panel/config", icono: Settings, texto: "Configuración" },
-      { href: "/panel/auditoria", icono: ShieldCheck, texto: "Historial" },
+      { href: "/admin/config", icono: Settings, texto: "Configuración" },
+      { href: "/admin/auditoria", icono: ShieldCheck, texto: "Historial" },
     ],
   },
 ];
@@ -66,8 +66,8 @@ export default function AdminShell({
               <div className="pp-nav-grupo">{g.grupo}</div>
               {g.items.map((it) => {
                 const Icono = it.icono;
-                // Sólo /panel exacto, si no todas las rutas quedarían activas.
-                const activo = it.href === "/panel" ? ruta === "/panel" : ruta.startsWith(it.href);
+                // Sólo /admin exacto, si no todas las rutas quedarían activas.
+                const activo = it.href === "/admin" ? ruta === "/admin" : ruta.startsWith(it.href);
                 return (
                   <Link
                     key={it.href}

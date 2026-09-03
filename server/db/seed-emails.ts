@@ -1,4 +1,4 @@
-/** Plantillas de email del estudio. Editables desde /panel/emails. */
+/** Plantillas de email del estudio. Editables desde /admin/emails. */
 
 const wrap = (body: string) => `<div style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#3A1F2B">
   <div style="background:#FF5C89;padding:28px 24px;text-align:center">

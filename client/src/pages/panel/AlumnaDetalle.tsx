@@ -24,7 +24,7 @@ type Plan = { id: string; slug: string; name: string; priceClp: number; credits:
 const TABS = ["Resumen", "Planes", "Reservas", "Créditos", "Pagos"] as const;
 
 export default function AlumnaDetalle() {
-  const [, params] = useRoute("/panel/alumnas/:id");
+  const [, params] = useRoute("/admin/alumnas/:id");
   const id = params?.id;
   const [f, setF] = useState<Ficha | null>(null);
   const [tab, setTab] = useState<(typeof TABS)[number]>("Resumen");
@@ -77,7 +77,7 @@ export default function AlumnaDetalle() {
       sub={p.email}
       acciones={
         <>
-          <Link href="/panel/alumnas" className="pp-btn chico"><ArrowLeft size={15} /> Volver</Link>
+          <Link href="/admin/alumnas" className="pp-btn chico"><ArrowLeft size={15} /> Volver</Link>
           <button className="pp-btn chico primario" onClick={() => setModal("plan")}><Plus size={15} /> Dar un plan</button>
         </>
       }

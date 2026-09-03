@@ -81,7 +81,7 @@ export default function Alumnas() {
               </thead>
               <tbody>
                 {datos.map((a) => (
-                  <tr key={a.id} className="clicable" onClick={() => navegar(`/panel/alumnas/${a.id}`)}>
+                  <tr key={a.id} className="clicable" onClick={() => navegar(`/admin/alumnas/${a.id}`)}>
                     <td>
                       <div className="pp-persona">
                         <div className="pp-avatar">{iniciales(a.firstName, a.lastName)}</div>

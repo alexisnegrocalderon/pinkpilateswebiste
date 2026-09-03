@@ -30,7 +30,7 @@ export default function Acceso({ modo }: { modo: "entrar" | "crear" }) {
             emergencyContactPhone: f.emergencyContactPhone || undefined,
             healthNotes: f.healthNotes || undefined,
           });
-      navegar(u.role === "student" ? "/mi" : "/panel");
+      navegar(u.role === "student" ? "/mi" : "/admin");
     } catch (err) {
       setError((err as Error).message);
     } finally {

@@ -67,17 +67,17 @@ function Router() {
       <Route path="/mi/perfil" component={soloAlumna(MiPerfil)} />
 
       {/* Panel del estudio */}
-      <Route path="/panel" component={soloEstudio(Resumen)} />
-      <Route path="/panel/agenda" component={soloEstudio(Agenda)} />
-      <Route path="/panel/horarios" component={soloEstudio(Horarios)} />
-      <Route path="/panel/alumnas" component={soloEstudio(Alumnas)} />
-      <Route path="/panel/alumnas/:id" component={soloEstudio(AlumnaDetalle)} />
-      <Route path="/panel/planes" component={soloEstudio(PanelPlanes)} />
-      <Route path="/panel/pagos" component={soloEstudio(Pagos)} />
-      <Route path="/panel/emails" component={soloEstudio(Emails)} />
-      <Route path="/panel/reportes" component={soloEstudio(Reportes)} />
-      <Route path="/panel/config" component={soloEstudio(Config)} />
-      <Route path="/panel/auditoria" component={soloEstudio(Auditoria)} />
+      <Route path="/admin" component={soloEstudio(Resumen)} />
+      <Route path="/admin/agenda" component={soloEstudio(Agenda)} />
+      <Route path="/admin/horarios" component={soloEstudio(Horarios)} />
+      <Route path="/admin/alumnas" component={soloEstudio(Alumnas)} />
+      <Route path="/admin/alumnas/:id" component={soloEstudio(AlumnaDetalle)} />
+      <Route path="/admin/planes" component={soloEstudio(PanelPlanes)} />
+      <Route path="/admin/pagos" component={soloEstudio(Pagos)} />
+      <Route path="/admin/emails" component={soloEstudio(Emails)} />
+      <Route path="/admin/reportes" component={soloEstudio(Reportes)} />
+      <Route path="/admin/config" component={soloEstudio(Config)} />
+      <Route path="/admin/auditoria" component={soloEstudio(Auditoria)} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
