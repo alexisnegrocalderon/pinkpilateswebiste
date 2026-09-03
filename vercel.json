@@ -3,14 +3,14 @@
   "outputDirectory": "dist/public",
   "installCommand": "pnpm install --frozen-lockfile",
   "functions": {
-    "api/index.ts": {
+    "api/_bundle.js": {
       "maxDuration": 15
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/_bundle"
     },
     {
       "source": "/((?!api/).*)",

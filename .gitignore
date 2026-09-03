@@ -114,3 +114,6 @@ client/public/__manus__/version.json
 
 # Base de datos local y artefactos de desarrollo
 .env
+
+# Bundle de la función serverless de Vercel, generado en cada build.
+api/_bundle.js
