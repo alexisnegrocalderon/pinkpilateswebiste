@@ -1,5 +1,27 @@
 {
   "buildCommand": "pnpm build",
   "outputDirectory": "dist/public",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "installCommand": "pnpm install --frozen-lockfile",
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 15,
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/jobs/run?job=daily",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }

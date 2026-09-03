@@ -224,6 +224,14 @@ export default defineConfig({
     port: 3000,
     strictPort: false, // Will find next available port if 3000 is busy
     host: true,
+    // El navegador debe ver la API en el mismo origen: sin esto la cookie de
+    // sesion (SameSite=Lax) no viaja entre :3000 y :3001 y el login "no hace nada".
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3001",
+        changeOrigin: false,
+      },
+    },
     allowedHosts: [
       ".manuspre.computer",
       ".manus.computer",

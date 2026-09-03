@@ -1,33 +1,29 @@
-import express from "express";
-import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import express from "express";
+import "dotenv/config";
+import { buildApp } from "./app";
+import { env } from "./env";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function startServer() {
-  const app = express();
-  const server = createServer(app);
+/**
+ * Arranque local. En Vercel NO se usa este archivo: allí el punto de entrada es
+ * api/index.ts y los estáticos los sirve el CDN, no Express.
+ */
+function start() {
+  const app = buildApp();
 
-  // Serve static files from dist/public in production
-  const staticPath =
-    process.env.NODE_ENV === "production"
-      ? path.resolve(__dirname, "public")
-      : path.resolve(__dirname, "..", "dist", "public");
+  if (env().NODE_ENV === "production") {
+    const staticPath = path.resolve(__dirname, "public");
+    app.use(express.static(staticPath));
+    app.get(/^(?!\/api).*/, (_req, res) => res.sendFile(path.join(staticPath, "index.html")));
+  }
 
-  app.use(express.static(staticPath));
-
-  // Handle client-side routing - serve index.html for all routes
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
-
-  const port = process.env.PORT || 3000;
-
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  const port = env().PORT;
+  app.listen(port, () => {
+    console.log(`API Pink Pilates escuchando en http://localhost:${port}`);
   });
 }
 
-startServer().catch(console.error);
+start();
