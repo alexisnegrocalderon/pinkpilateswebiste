@@ -2,8 +2,8 @@ import { build } from "esbuild";
 
 /**
  * El builder de Node.js de Vercel, para este proyecto (package.json con
- * "type": "module"), transpila api/index.ts archivo por archivo en vez de
- * empaquetarlo en uno solo: el import relativo "../server/app" queda
+ * "type": "module"), transpila el archivo de entrada archivo por archivo en
+ * vez de empaquetarlo en uno solo: un import relativo como "./app" queda
  * intacto en el JS emitido, y el loader ESM de Node exige extensión
  * explícita para resolver módulos relativos — por eso en runtime tronaba
  * con ERR_MODULE_NOT_FOUND buscando "/var/task/server/app" a secas.
@@ -12,10 +12,15 @@ import { build } from "esbuild";
  * inline en un solo archivo (sin imports relativos que resolver en
  * runtime); las dependencias de npm quedan externas, resueltas desde
  * node_modules como en cualquier función Node normal.
+ *
+ * El resultado se escribe sobre api/index.js, que SÍ queda versionado: el
+ * patrón "api/index.js" en vercel.json > functions se valida contra el
+ * checkout de git antes de correr el build, así que el archivo debe existir
+ * de antemano. Cada build lo regenera con el código actual.
  */
 await build({
-  entryPoints: ["api/index.ts"],
-  outfile: "api/_bundle.js",
+  entryPoints: ["server/vercel-handler.ts"],
+  outfile: "api/index.js",
   bundle: true,
   platform: "node",
   format: "esm",
@@ -26,4 +31,4 @@ await build({
   },
 });
 
-console.log("api/_bundle.js generado");
+console.log("api/index.js generado");

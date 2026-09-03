@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import { buildApp } from "../server/app";
+import { buildApp } from "./app";
 
 /**
  * Punto de entrada de Vercel. El app se construye una vez por contenedor
