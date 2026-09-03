@@ -23,7 +23,7 @@ export default function StudentShell({ titulo, sub, acciones, children }: {
       <div className="pp-shell">
         <aside className="pp-lateral">
           <div className="pp-marca">
-            <div className="pp-marca-icono">P</div>
+            <img className="pp-marca-icono" src="/assets/pink/pink-pilates-isotipo.png" alt="Pink Pilates" />
             <div className="pp-marca-texto">
               <b>Pink Pilates</b>
               <span>Mi cuenta</span>

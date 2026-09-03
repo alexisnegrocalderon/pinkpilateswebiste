@@ -1,7 +1,10 @@
 /** Plantillas de email del estudio. Editables desde /admin/emails. */
 
+const LOGO_URL = "https://pinkpilateswebiste.vercel.app/assets/pink/pink-pilates-isotipo.png";
+
 const wrap = (body: string) => `<div style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#3A1F2B">
-  <div style="background:#FF5C89;padding:28px 24px;text-align:center">
+  <div style="background:#FF5C89;padding:24px 24px 28px;text-align:center">
+    <img src="${LOGO_URL}" width="40" height="40" alt="" style="display:block;margin:0 auto 10px;width:40px;height:40px" />
     <div style="color:#FFF9F6;font-size:22px;letter-spacing:.14em;font-weight:700">PINK PILATES</div>
     <div style="color:#FFF9F6;opacity:.85;font-size:11px;letter-spacing:.24em;margin-top:6px">PINK, UNLEASHED</div>
   </div>
