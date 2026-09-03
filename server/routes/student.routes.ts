@@ -142,6 +142,24 @@ studentRouter.get(
   }),
 );
 
+studentRouter.get(
+  "/me/orders",
+  requireAuth,
+  wrap(async (req, res) => {
+    const rows = rowsOf(
+      await db.execute(sql`
+        SELECT o.id, o.order_number AS "orderNumber", o.status::text AS status,
+               o.total_clp AS "totalClp", o.paid_at AS "paidAt", o.created_at AS "createdAt",
+               (SELECT string_agg(oi.description, ', ') FROM order_items oi WHERE oi.order_id = o.id) AS items
+          FROM orders o
+         WHERE o.student_id = ${req.user!.id}::uuid
+         ORDER BY o.created_at DESC LIMIT 50
+      `),
+    );
+    res.json({ data: rows });
+  }),
+);
+
 const bookingSchema = z.object({ sessionId: z.string().uuid() });
 
 studentRouter.post(

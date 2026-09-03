@@ -18,8 +18,8 @@ async function main() {
     await db.execute(sql`SELECT id, first_name FROM users WHERE role = 'student' ORDER BY created_at`),
   );
   const plans = Object.fromEntries(
-    rowsOf<{ id: string; slug: string; credits: number; price_clp: number; validity_days: number }>(
-      await db.execute(sql`SELECT id, slug, credits, price_clp, validity_days FROM plans`),
+    rowsOf<{ id: string; slug: string; name: string; credits: number; price_clp: number; validity_days: number }>(
+      await db.execute(sql`SELECT id, slug, name, credits, price_clp, validity_days FROM plans`),
     ).map((p) => [p.slug, p]),
   );
 
@@ -55,13 +55,20 @@ async function main() {
       await db.execute(sql`
         INSERT INTO orders (order_number, student_id, status, subtotal_clp, discount_clp, total_clp, provider, paid_at, created_at)
         VALUES (${orderNumber}, ${st.id}::uuid, 'paid', ${plan.price_clp}, 0, ${plan.price_clp}, 'mock',
-                ${startsOn}::date, ${startsOn}::date)
+                -- Los planes vigentes se pagaron este mes: es cuando la gente
+                -- renueva. Los vencidos conservan su fecha original.
+                ${["active", "depleted", "pending_verification"].includes(status)
+                  ? sql`(date_trunc('month', now() AT TIME ZONE 'America/Santiago')
+                        + (floor(random() * GREATEST(1, EXTRACT(DAY FROM now() AT TIME ZONE 'America/Santiago')))::int || ' days')::interval
+                        + INTERVAL '12 hours') AT TIME ZONE 'America/Santiago'`
+                  : sql`${startsOn}::date`},
+                ${startsOn}::date)
         RETURNING id
       `),
     );
     await db.execute(sql`
       INSERT INTO order_items (order_id, kind, plan_id, description, unit_price_clp, quantity, total_clp)
-      VALUES (${order.id}::uuid, 'plan', ${plan.id}::uuid, ${planSlug}, ${plan.price_clp}, 1, ${plan.price_clp})
+      VALUES (${order.id}::uuid, 'plan', ${plan.id}::uuid, ${plan.name}, ${plan.price_clp}, 1, ${plan.price_clp})
     `);
 
     const [m] = rowsOf<{ id: string }>(
@@ -77,6 +84,44 @@ async function main() {
       INSERT INTO credit_transactions (membership_id, student_id, delta, reason, note, created_at)
       VALUES (${m.id}::uuid, ${st.id}::uuid, ${plan.credits}, 'purchase', ${"Compra " + orderNumber}, ${startsOn}::date)
     `);
+  }
+
+  /* ---------- Renovaciones pasadas ----------
+     Un estudio real tiene alumnas que renuevan mes a mes. Sin este historial,
+     el grafico de ingresos y la comparacion contra el mes anterior quedan
+     vacios, y el panel parece recien inaugurado. Las compras se concentran en
+     los primeros dias de cada mes, que es cuando la gente renueva. */
+  for (const [i, st] of students.entries()) {
+    const renovaciones = i % 3 === 0 ? 3 : i % 3 === 1 ? 2 : 1;
+    for (let atras = 1; atras <= renovaciones; atras++) {
+      const plan = plans[pickOne(catalog)];
+      // Dia 1 a 5 del mes correspondiente: patron tipico de renovacion.
+      const dia = 1 + Math.floor(rnd() * 5);
+      const [seqRow] = rowsOf<{ n: number }>(await db.execute(sql`SELECT nextval('order_number_seq')::int AS n`));
+      const orderNumber = `PP-2026-${String(seqRow.n).padStart(6, "0")}`;
+
+      const [order] = rowsOf<{ id: string }>(
+        await db.execute(sql`
+          INSERT INTO orders (order_number, student_id, status, subtotal_clp, discount_clp, total_clp, provider, paid_at, created_at)
+          VALUES (${orderNumber}, ${st.id}::uuid, 'paid', ${plan.price_clp}, 0, ${plan.price_clp}, 'mock',
+                  (date_trunc('month', (now() AT TIME ZONE 'America/Santiago') - (${atras}::int || ' months')::interval)
+                    + (${dia - 1}::int || ' days')::interval + INTERVAL '12 hours') AT TIME ZONE 'America/Santiago',
+                  (date_trunc('month', (now() AT TIME ZONE 'America/Santiago') - (${atras}::int || ' months')::interval)
+                    + (${dia - 1}::int || ' days')::interval + INTERVAL '12 hours') AT TIME ZONE 'America/Santiago')
+          RETURNING id`),
+      );
+      await db.execute(sql`
+        INSERT INTO order_items (order_id, kind, plan_id, description, unit_price_clp, quantity, total_clp)
+        VALUES (${order.id}::uuid, 'plan', ${plan.id}::uuid, ${plan.name}, ${plan.price_clp}, 1, ${plan.price_clp})`);
+      await db.execute(sql`
+        INSERT INTO memberships (student_id, plan_id, order_id, status, credits_total, credits_used,
+                                 starts_on, ends_on, activated_at, price_paid_clp)
+        VALUES (${st.id}::uuid, ${plan.id}::uuid, ${order.id}::uuid, 'expired',
+                ${plan.credits}, ${plan.credits},
+                (date_trunc('month', (now() AT TIME ZONE 'America/Santiago') - (${atras}::int || ' months')::interval))::date,
+                (date_trunc('month', (now() AT TIME ZONE 'America/Santiago') - (${atras - 1}::int || ' months')::interval))::date,
+                now(), ${plan.price_clp})`);
+    }
   }
 
   /* ---------- Historial de asistencia en las clases ya pasadas ---------- */

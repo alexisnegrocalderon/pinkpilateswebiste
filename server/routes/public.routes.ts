@@ -50,6 +50,12 @@ publicRouter.get(
              s.waitlist_count              AS "waitlistCount",
              GREATEST(0, s.capacity - s.booked_count) AS "spotsLeft",
              (s.booked_count >= s.capacity)           AS "isFull",
+             -- Una clase que ya empezo (o esta dentro de la ventana de cierre)
+             -- no debe ofrecer boton de reservar: el servidor la rechazaria y
+             -- la alumna se llevaria un error evitable.
+             (s.starts_at <= now() + (COALESCE(
+                (SELECT (value #>> '{}')::int FROM settings WHERE key = 'booking_closes_minutes_before'), 60
+              ) || ' minutes')::interval)              AS "bookingClosed",
              s.status::text                AS status,
              ct.id                         AS "classTypeId",
              ct.name                       AS "className",

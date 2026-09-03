@@ -35,15 +35,27 @@ const heroLines = [
   { kicker: "Aparatos, precisión y una dosis de locura", lineOne: "Suda.", lineTwo: "Sonríe.", accent: "Repite.", caption: "Clases personalizadas, energía real y cero vibra de gimnasio genérico." },
 ];
 
-// Datos de interfaz temporales: el proveedor de agenda reemplazará estas listas por datos reales.
-const bookingClasses = [
-  { id: "studio", label: "Studio Pilates", note: "Reformer + apparatus" },
-  { id: "barre", label: "Barre & Mat", note: "Fuerza + flow" },
-  { id: "pinkmoves", label: "Pink Moves", note: "Energía + ritmo" },
-];
+/** Clase real de la agenda, tal como la entrega /api/public/schedule. */
+type ClaseAgenda = {
+  id: string;
+  classTypeId: string;
+  className: string;
+  classSlug: string;
+  localDate: string;
+  startTime: string;
+  spotsLeft: number;
+  isFull: boolean;
+  bookingClosed: boolean;
+  instructorName: string;
+};
 
-const bookingDays = ["LUN", "MAR", "MIÉ", "JUE", "VIE"];
-const bookingTimes = ["08:30", "10:00", "12:30", "17:15", "19:00"];
+const DIAS_CORTOS = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+
+/** "2026-09-10" -> "MIÉ", sin que la zona del navegador corra el día. */
+function diaDe(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return DIAS_CORTOS[new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay()];
+}
 
 function Mark({ inverse = false }: { inverse?: boolean }) {
   if (!inverse) {
@@ -86,12 +98,41 @@ export default function Home() {
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [selectedSpark, setSelectedSpark] = useState(0);
-  const [bookingClass, setBookingClass] = useState("studio");
-  const [bookingDay, setBookingDay] = useState("LUN");
-  const [bookingTime, setBookingTime] = useState<string | null>(null);
+  const [agenda, setAgenda] = useState<ClaseAgenda[]>([]);
+  const [bookingClass, setBookingClass] = useState<string | null>(null);
+  const [bookingDay, setBookingDay] = useState<string | null>(null);
+  const [bookingSession, setBookingSession] = useState<ClaseAgenda | null>(null);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const hero = heroLines[selectedSlide];
-  const chosenClass = bookingClasses.find((item) => item.id === bookingClass) ?? bookingClasses[0];
+
+  // La agenda real reemplaza a las listas que antes estaban escritas a mano.
+  useEffect(() => {
+    let vivo = true;
+    fetch("/api/public/schedule")
+      .then((r) => (r.ok ? r.json() : { data: [] }))
+      .then((j) => { if (vivo) setAgenda(j.data ?? []); })
+      .catch(() => { /* el sitio se ve igual aunque la agenda no cargue */ });
+    return () => { vivo = false; };
+  }, []);
+
+  // Tipos de clase con cupos publicados, en el orden en que aparecen.
+  const bookingClasses = Array.from(
+    new Map(agenda.map((c) => [c.classTypeId, { id: c.classTypeId, label: c.className, note: c.instructorName }])).values(),
+  ).slice(0, 4);
+
+  const claseActiva = bookingClass ?? bookingClasses[0]?.id ?? null;
+  const chosenClass = bookingClasses.find((c) => c.id === claseActiva) ?? bookingClasses[0];
+
+  // Próximos días con clases de ese tipo.
+  const diasDisponibles = Array.from(
+    new Set(agenda.filter((c) => c.classTypeId === claseActiva).map((c) => c.localDate)),
+  ).sort().slice(0, 5);
+
+  const diaActivo = bookingDay && diasDisponibles.includes(bookingDay) ? bookingDay : diasDisponibles[0] ?? null;
+
+  const bloques = agenda
+    .filter((c) => c.classTypeId === claseActiva && c.localDate === diaActivo)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 46);
@@ -149,6 +190,8 @@ export default function Home() {
             ["02", "Clases", "#clases"],
             ["03", "Agenda", "#reserva"],
             ["04", "El estudio", "#estudio"],
+            ["05", "Planes y precios", "/planes"],
+            ["06", "Mi cuenta", "/mi"],
           ].map(([number, label, href]) => (
             <a key={label} href={href} onClick={() => setMenuOpen(false)}>
               <small>{number}</small><span>{label}</span><ArrowUpRight size={29} />
@@ -237,26 +280,33 @@ export default function Home() {
 
         <section className="riot-reserve" id="reserva">
           <div className="reserve-grid vertical-grid" />
-          <div className="reserve-top"><span>04 / AGENDA PINK</span><span>ELIGE TU MOMENTO · LO DEMÁS LO CONECTAMOS</span></div>
+          <div className="reserve-top"><span>04 / AGENDA PINK</span><span>ELIGE TU MOMENTO · CUPOS EN VIVO</span></div>
           <div className="reserve-main">
-            <div className="reserve-title"><h2>Tu hora<br />feliz empieza<br />en el <em>reformer.</em></h2><p>Una interfaz preparada para conectar disponibilidad, instructoras, pagos y confirmaciones cuando elijas el motor de reservas.</p></div>
+            <div className="reserve-title"><h2>Tu hora<br />feliz empieza<br />en el <em>reformer.</em></h2><p>Disponibilidad real, cupos que se actualizan solos y tu plan descontando créditos. Elige tu clase y toma tu lugar.</p></div>
             <div className={`booking-interface ${bookingConfirmed ? "booking-interface-confirmed" : ""}`}>
               {bookingConfirmed ? (
                 <div className="booking-confirmation">
                   <span className="booking-confirmation-mark">P</span>
-                  <p className="booking-overline">SELECCIÓN LISTA</p>
-                  <h3>{chosenClass.label}<br /><em>{bookingDay} · {bookingTime}</em></h3>
-                  <p>Tu selección quedó preparada para pasar a la agenda real. Cuando conectemos el sistema, este paso confirmará cupo, instructora y pago.</p>
-                  <button type="button" className="booking-reset" onClick={() => { setBookingConfirmed(false); setBookingTime(null); }}>Editar selección <ArrowUpRight size={16} /></button>
+                  <p className="booking-overline">CUPO DISPONIBLE</p>
+                  <h3>{chosenClass?.label}<br /><em>{diaActivo ? diaDe(diaActivo) : ""} · {bookingSession ? bookingSession.startTime.slice(0, 5) : ""}</em></h3>
+                  <p>
+                    {bookingSession && bookingSession.spotsLeft <= 2
+                      ? `Quedan ${bookingSession.spotsLeft} cupo(s) en esta clase. Entra a tu cuenta para tomarlo.`
+                      : "Entra a tu cuenta para confirmar tu cupo y descontar el crédito de tu plan."}
+                  </p>
+                  <a className="booking-confirm" href="/reservar" style={{ marginTop: 18 }}>
+                    <span>TOMAR ESTE CUPO</span><ArrowUpRight size={20} />
+                  </a>
+                  <button type="button" className="booking-reset" onClick={() => { setBookingConfirmed(false); setBookingSession(null); }}>Editar selección <ArrowUpRight size={16} /></button>
                 </div>
               ) : (
                 <>
-                  <div className="booking-interface-head"><span>RESERVA / BETA INTERFACE</span><span>01 — 03</span></div>
+                  <div className="booking-interface-head"><span>RESERVA</span><span>01 — 03</span></div>
                   <div className="booking-step">
                     <div className="booking-step-title"><b>01</b><span>Elige tu clase</span></div>
                     <div className="booking-class-options">
                       {bookingClasses.map((item) => (
-                        <button type="button" key={item.id} className={bookingClass === item.id ? "booking-class active" : "booking-class"} onClick={() => { setBookingClass(item.id); setBookingConfirmed(false); }} aria-pressed={bookingClass === item.id}>
+                        <button type="button" key={item.id} className={claseActiva === item.id ? "booking-class active" : "booking-class"} onClick={() => { setBookingClass(item.id); setBookingDay(null); setBookingSession(null); setBookingConfirmed(false); }} aria-pressed={claseActiva === item.id}>
                           <span>{item.label}</span><small>{item.note}</small><i>↗</i>
                         </button>
                       ))}
@@ -265,20 +315,32 @@ export default function Home() {
                   <div className="booking-step booking-step-compact">
                     <div className="booking-step-title"><b>02</b><span>Elige un día</span></div>
                     <div className="booking-day-options">
-                      {bookingDays.map((day, index) => (
-                        <button type="button" key={day} onClick={() => { setBookingDay(day); setBookingConfirmed(false); }} className={bookingDay === day ? "booking-day active" : "booking-day"} aria-pressed={bookingDay === day}><span>{day}</span><small>{String(index + 1).padStart(2, "0")}</small></button>
+                      {diasDisponibles.map((fecha) => (
+                        <button type="button" key={fecha} onClick={() => { setBookingDay(fecha); setBookingSession(null); setBookingConfirmed(false); }} className={diaActivo === fecha ? "booking-day active" : "booking-day"} aria-pressed={diaActivo === fecha}><span>{diaDe(fecha)}</span><small>{fecha.slice(8, 10)}</small></button>
                       ))}
                     </div>
                   </div>
                   <div className="booking-step booking-step-compact">
                     <div className="booking-step-title"><b>03</b><span>Elige un bloque</span></div>
                     <div className="booking-time-options">
-                      {bookingTimes.map((time) => (
-                        <button type="button" key={time} className={bookingTime === time ? "booking-time active" : "booking-time"} onClick={() => { setBookingTime(time); setBookingConfirmed(false); }} aria-pressed={bookingTime === time}>{time}</button>
+                      {bloques.map((c) => (
+                        <button
+                          type="button"
+                          key={c.id}
+                          className={bookingSession?.id === c.id ? "booking-time active" : "booking-time"}
+                          onClick={() => { setBookingSession(c); setBookingConfirmed(false); }}
+                          aria-pressed={bookingSession?.id === c.id}
+                          disabled={c.isFull || c.bookingClosed}
+                          title={c.bookingClosed ? "La reserva ya cerró" : c.isFull ? "Clase llena" : `${c.spotsLeft} cupo(s) disponibles`}
+                          style={c.isFull || c.bookingClosed ? { opacity: 0.4 } : undefined}
+                        >
+                          {c.startTime.slice(0, 5)}
+                        </button>
                       ))}
+                      {bloques.length === 0 && <span className="booking-time" style={{ opacity: 0.5 }}>Sin clases</span>}
                     </div>
                   </div>
-                  <div className="booking-action-row"><p>HORARIOS DE REFERENCIA. LA DISPONIBILIDAD REAL SE ACTIVARÁ AL CONECTAR LA AGENDA.</p><button type="button" className="booking-confirm" disabled={!bookingTime} onClick={() => setBookingConfirmed(true)}><span>PREPARAR RESERVA</span><ArrowUpRight size={20} /></button></div>
+                  <div className="booking-action-row"><p>{bookingSession ? `${bookingSession.spotsLeft} CUPO(S) DISPONIBLES · ${bookingSession.instructorName.toUpperCase()}` : "DISPONIBILIDAD EN TIEMPO REAL"}</p><button type="button" className="booking-confirm" disabled={!bookingSession} onClick={() => setBookingConfirmed(true)}><span>RESERVAR</span><ArrowUpRight size={20} /></button></div>
                 </>
               )}
             </div>
@@ -288,7 +350,7 @@ export default function Home() {
         </section>
       </main>
 
-      <a className="mobile-booking-dock" href="#reserva" aria-label="Ir a la agenda de Pink Pilates">
+      <a className="mobile-booking-dock" href="/reservar" aria-label="Reservar una clase en Pink Pilates">
         <span><i>04</i> AGENDA PINK</span><b>RESERVAR <ArrowUpRight size={16} /></b>
       </a>
 
