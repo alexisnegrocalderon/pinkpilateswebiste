@@ -17,6 +17,8 @@
     "dev:api": "tsx watch server/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:http": "tsx server/db/migrate-http.ts",
+    "db:check": "tsx server/db/check-schema.ts",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx server/db/seed.ts",
     "db:reset": "tsx server/db/reset.ts"
