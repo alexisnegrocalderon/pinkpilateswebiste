@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import { Anton, Archivo } from "next/font/google";
 import { STUDIO } from "@shared/domain/policy";
 import { Providers } from "./providers";
 import "@/index.css";
@@ -12,6 +12,15 @@ const archivo = Archivo({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-archivo",
+  display: "swap",
+});
+
+// Titulares bold/condensados en mayúscula — el tono "editorial fitness"
+// que pidió Javiera (flyer Energy Jump + referencias tipo DP).
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -52,7 +61,7 @@ const localBusinessJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={archivo.variable}>
+    <html lang="es" className={`${archivo.variable} ${anton.variable}`}>
       <head>
         <script
           type="application/ld+json"

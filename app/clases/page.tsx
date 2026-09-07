@@ -26,7 +26,7 @@ export default async function ClasesPage() {
       <SiteHeader />
       <main className="bg-white">
         <div className="mx-auto max-w-6xl px-5 py-16">
-          <h1 className="text-[32px] font-semibold tracking-tight text-neutral-900 sm:text-[40px]">Tipos de clase</h1>
+          <h1 className="text-[36px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[48px]">Tipos de clase</h1>
           <p className="mt-2 max-w-xl text-[15px] text-neutral-600">
             Cada clase dura {clases[0]?.defaultDurationMin ?? 60} minutos y se paga con créditos de tu plan.
           </p>
