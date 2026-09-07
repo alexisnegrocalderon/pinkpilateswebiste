@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CROSSHERO_URL } from "@shared/domain/policy";
+import { CROSSHERO_URL, STUDIO } from "@shared/domain/policy";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 
@@ -126,11 +126,24 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Misión */}
+        <section className="bg-[#FFDBDB] px-5 py-20 text-center">
+          <p className="mx-auto max-w-xl text-[20px] font-medium italic leading-relaxed text-neutral-800 sm:text-[24px]">
+            "La condición física es el primer requisito para la felicidad."
+          </p>
+          <p className="mt-2 text-[13px] font-semibold uppercase tracking-wide text-[#B4285A]">— Joseph Pilates</p>
+          <p className="mx-auto mt-8 max-w-lg text-[15px] leading-relaxed text-neutral-700">
+            Pink Pilates nace para entregar a la comunidad sanación a través del movimiento.
+            Queremos engrandecer el alma a través del movimiento consciente, logrando como
+            resultado un cuerpo sano, armonioso y verdaderamente feliz.
+          </p>
+        </section>
+
         {/* Banda de marca */}
         <section className="bg-[#FF5C89] py-16 text-center">
           <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-white/80">Pink, Unleashed</p>
           <a
-            href="https://instagram.com/pinkpilates"
+            href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
             target="_blank"
             rel="noreferrer"
             className="mt-3 inline-block text-[16px] font-medium text-white underline underline-offset-4 hover:text-[#FFDBE3]"

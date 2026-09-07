@@ -13,7 +13,7 @@ export type SettingKey = keyof SettingsShape;
 export const STUDIO = {
   name: "Pink Pilates",
   tagline: "Pink, Unleashed",
-  email: "contacto@pinkpilates.cl",
+  email: "info@pinkpilates.cl",
   phone: "+56999471471",
   instagram: "@pinkpilates",
   address: "Angamos 326, Reñaca / Viña del Mar",
