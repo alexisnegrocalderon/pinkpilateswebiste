@@ -34,5 +34,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/formacion-instructores`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/galeria`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/contacto`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/que-es-pilates`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/convenios`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${base}/flash-move`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${base}/animacion-y-eventos`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 }

@@ -1,32 +1,74 @@
 import type { Metadata } from "next";
+import { Check } from "lucide-react";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Reglamento",
-  description: "Reglamento y políticas de clases, reservas y planes de Pink Pilates.",
+  description: "Reglamento y políticas de clases, reservas, planes y pagos de Pink Pilates, Reñaca.",
 };
 
-const SECCIONES = [
+const SECCIONES: { titulo: string; texto?: string; puntos?: string[] }[] = [
   {
-    titulo: "Reservas y cancelaciones",
+    titulo: "Clases",
     texto:
-      "[Placeholder] Las reservas se hacen a través de CrossHero. Te pedimos cancelar con anticipación para liberar el cupo a otra alumna.",
+      "Las clases se reservan a través de la app CrossHero o por WhatsApp, nuestros canales oficiales.",
+    puntos: [
+      "Tolerancia de atraso de hasta 10 minutos, mientras dure el calentamiento.",
+      "El estudio abre 5 minutos antes del inicio de cada clase.",
+      "1 crédito equivale a 1 clase.",
+      "Cancela con al menos 3 horas de anticipación para clases de tarde, o 10 horas para clases de mañana.",
+      "Se requiere un mínimo de 3 alumnas inscritas para que la clase se realice.",
+      "Si no cancelas dentro del plazo, se pierde el crédito correspondiente sin posibilidad de recuperación.",
+      "Pink Pilates se reserva el derecho de modificar el horario, avisando con anticipación.",
+    ],
   },
   {
-    titulo: "Puntualidad",
-    texto:
-      "[Placeholder] Te recomendamos llegar 10 minutos antes de tu clase. Por seguridad, no se puede ingresar una vez iniciada la sesión.",
+    titulo: "Planes",
+    puntos: [
+      "Los créditos de planes mensuales deben usarse hasta el día 30 o 31 de cada mes.",
+      "Los planes trimestrales y semestrales tienen vigencia de 3 a 6 meses desde su activación.",
+      "Los créditos no se transfieren entre meses ni entre años.",
+      "Los planes no son transferibles a otra persona.",
+      "El congelamiento (pausa temporal de hasta 30 días) sólo se acepta con certificado médico.",
+      "Las clases no tomadas en fechas de cierre del estudio no son recuperables.",
+      "No se hacen excepciones a estas disposiciones.",
+    ],
   },
   {
-    titulo: "Planes y vigencia",
-    texto:
-      "[Placeholder] Cada plan tiene una cantidad de créditos y una vigencia definida — el detalle de cada uno está en la página de Planes.",
+    titulo: "Pagos",
+    puntos: [
+      "El pago vence el día 1 de cada mes.",
+      "La falta de pago libera el cupo reservado.",
+      "Las inscripciones a mitad de mes se cobran de forma prorrateada.",
+      "Los pagos no son reembolsables bajo ninguna circunstancia.",
+    ],
   },
   {
-    titulo: "Salud y seguridad",
+    titulo: "Alumnas embarazadas",
     texto:
-      "[Placeholder] Avísanos si tienes alguna lesión, estás embarazada o tienes alguna condición que debamos considerar antes de tu clase.",
+      "Para tomar clases durante el embarazo se requiere autorización médica por escrito, con los datos de contacto del médico, certificación de que el embarazo supera las 12 semanas, y el historial de actividad física y del embarazo, incluyendo alergias o lesiones relevantes.",
+  },
+  {
+    titulo: "Protocolo de ingreso",
+    puntos: [
+      "Sacarse los zapatos al entrar y usar calcetines antideslizantes.",
+      "Lavarse las manos antes de la clase.",
+      "El uso de toalla personal es obligatorio — sin ella, el estudio puede limitar el ingreso.",
+      "Se recomienda traer botella de agua y una toalla de 60×80 cm aprox.",
+      "Los cupos se asignan por orden de llegada.",
+      "Cada alumna limpia y guarda el equipamiento que usó.",
+    ],
+  },
+  {
+    titulo: "Responsabilidad y exención",
+    texto:
+      "Pink Pilates no asume responsabilidad por daños, lesiones o secuelas derivadas del mal uso del equipamiento, ejecución incorrecta de los ejercicios, omitir el calentamiento, condiciones preexistentes no informadas, o no seguir las instrucciones de la instructora. El Pilates es una actividad físicamente exigente y conlleva riesgo de lesión si no se practica con la condición adecuada. Al participar, autorizas el uso de fotos y videos tomados en el estudio con fines promocionales, sin compensación.",
+  },
+  {
+    titulo: "Confirmación",
+    texto:
+      "Al reservar una clase confirmas tu mayoría de edad (o autorización de un adulto responsable), y que entiendes y aceptas todos los términos de este reglamento.",
   },
 ];
 
@@ -39,14 +81,26 @@ export default function ReglamentoPage() {
           <h1 className="text-[36px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[48px]">
             Reglamento
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">Lo que hay que saber antes de tu primera clase</p>
+          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">
+            Para garantizar un servicio de calidad y una experiencia óptima para todas
+          </p>
         </section>
 
         <div className="mx-auto max-w-2xl px-5 py-16">
           {SECCIONES.map((s) => (
             <div key={s.titulo} className="mb-10">
               <h2 className="text-[19px] font-semibold text-neutral-900">{s.titulo}</h2>
-              <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">{s.texto}</p>
+              {s.texto && <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">{s.texto}</p>}
+              {s.puntos && (
+                <ul className="mt-3 grid gap-2">
+                  {s.puntos.map((p) => (
+                    <li key={p} className="flex items-start gap-2 text-[14.5px] leading-relaxed text-neutral-600">
+                      <Check size={16} className="mt-0.5 shrink-0 text-[#FF5C89]" />
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>
