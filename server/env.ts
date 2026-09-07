@@ -7,9 +7,6 @@ import { z } from "zod";
 const schema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL es obligatoria"),
   SESSION_SECRET: z.string().min(8).default("dev-session-secret"),
-  MOCK_WEBHOOK_SECRET: z.string().min(8).default("dev-mock-webhook-secret"),
-  CRON_SECRET: z.string().min(8).default("dev-cron-secret"),
-  PAYMENTS_PROVIDER: z.enum(["mock", "mercadopago", "flow", "transbank"]).default("mock"),
   APP_URL: z.string().url().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(3001),

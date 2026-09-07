@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
+import { CROSSHERO_URL } from "@shared/domain/policy";
 import { clp } from "@/lib/format";
 
 export type Plan = {
@@ -21,15 +22,7 @@ export type Plan = {
 
 const PERIODO: Record<number, string> = { 1: "1 mes", 3: "3 meses", 6: "6 meses", 12: "12 meses" };
 
-export function PlanCard({
-  plan,
-  loggedIn,
-  onComprar,
-}: {
-  plan: Plan;
-  loggedIn: boolean;
-  onComprar: (p: Plan) => void;
-}) {
+export function PlanCard({ plan }: { plan: Plan }) {
   const [abierto, setAbierto] = useState(false);
   const destacado = !!plan.badge;
 
@@ -100,16 +93,15 @@ export function PlanCard({
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onComprar(plan);
-        }}
-        className="mt-5 w-full rounded-full bg-[#FF5C89] px-4 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
+      <a
+        href={CROSSHERO_URL}
+        target="_blank"
+        rel="noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="mt-5 block w-full rounded-full bg-[#FF5C89] px-4 py-3 text-center text-[14px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
       >
-        {loggedIn ? "Comprar" : "Entrar y comprar"}
-      </button>
+        Reservar en CrossHero
+      </a>
     </div>
   );
 }

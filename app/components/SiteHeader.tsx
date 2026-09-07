@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { CROSSHERO_URL } from "@shared/domain/policy";
 
 const NAV = [
   { href: "/clases", label: "Clases" },
   { href: "/planes", label: "Planes" },
-  { href: "/reservar", label: "Reservar" },
+  { href: "/contacto", label: "Contacto" },
 ];
 
 export function SiteHeader() {
@@ -27,18 +28,14 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <Link
-            href="/ingresar"
-            className="text-[13.5px] font-semibold uppercase tracking-wide text-neutral-500 transition-colors hover:text-[#FF5C89]"
-          >
-            Ingresar
-          </Link>
-          <Link
-            href="/reservar"
+          <a
+            href={CROSSHERO_URL}
+            target="_blank"
+            rel="noreferrer"
             className="rounded-full bg-[#FF5C89] px-5 py-2 text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#e14c76]"
           >
-            Reservar clase
-          </Link>
+            Reservar en CrossHero
+          </a>
         </nav>
 
         <button
@@ -56,7 +53,7 @@ export function SiteHeader() {
 
       {abierto && (
         <nav className="flex flex-col gap-1 border-t border-neutral-200 bg-white px-5 py-4 md:hidden">
-          {[...NAV, { href: "/ingresar", label: "Ingresar" }].map((n) => (
+          {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
@@ -66,13 +63,15 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <Link
-            href="/reservar"
+          <a
+            href={CROSSHERO_URL}
+            target="_blank"
+            rel="noreferrer"
             onClick={() => setAbierto(false)}
             className="mt-1 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[14px] font-semibold uppercase tracking-wide text-white"
           >
-            Reservar clase
-          </Link>
+            Reservar en CrossHero
+          </a>
         </nav>
       )}
     </header>

@@ -4,9 +4,9 @@ import { classTypes } from "@shared/schema";
 import { db } from "../server/db/client";
 
 /**
- * Sólo las rutas públicas e indexables. /admin, /mi, /checkout, /pagar,
- * /pago quedan fuera (transaccionales o detrás de login, ver robots.ts).
- * Se amplía en la fase 3 con las landings del embudo.
+ * Sólo las rutas públicas e indexables. El sitio ya no gestiona reservas ni
+ * cuentas (Javiera usa CrossHero) — /admin, /ingresar quedan fuera (ver
+ * robots.ts). El resto son páginas de marketing/SEO.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://pinkpilates.cl";
@@ -28,6 +28,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     { url: `${base}/planes`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${base}/reservar`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${base}/horarios`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${base}/quienes-somos`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/reglamento`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${base}/formacion-instructores`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/galeria`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/contacto`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 }

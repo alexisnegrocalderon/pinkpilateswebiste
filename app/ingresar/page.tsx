@@ -1,7 +1,7 @@
 "use client";
 
-import Acceso from "@/pages/Acceso";
+import Ingresar from "@/pages/Ingresar";
 
 export default function Page() {
-  return <Acceso modo="entrar" />;
+  return <Ingresar />;
 }

@@ -4,7 +4,7 @@ import { api, ApiError } from "./api";
 export type Usuario = {
   id: string;
   email: string;
-  role: "owner" | "instructor" | "student";
+  role: "owner";
   firstName: string;
   lastName: string;
 };
@@ -13,7 +13,6 @@ type AuthValue = {
   usuario: Usuario | null;
   cargando: boolean;
   entrar: (email: string, password: string) => Promise<Usuario>;
-  registrarse: (datos: Record<string, unknown>) => Promise<Usuario>;
   salir: () => Promise<void>;
   refrescar: () => Promise<void>;
 };
@@ -49,11 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUsuario(u);
         return u;
       },
-      registrarse: async (datos) => {
-        const u = await api.post<Usuario>("/auth/register", datos);
-        setUsuario(u);
-        return u;
-      },
       salir: async () => {
         await api.post("/auth/logout");
         setUsuario(null);
@@ -71,18 +65,17 @@ export function useAuth() {
   return ctx;
 }
 
-/** Protege una rama del árbol. Redirige en vez de mostrar un error seco. */
+/** Protege el panel. Redirige a /ingresar en vez de mostrar un error seco. */
 export function Protegido({ roles, children }: { roles?: Usuario["role"][]; children: ReactNode }) {
   const { usuario, cargando } = useAuth();
 
   useEffect(() => {
     if (cargando) return;
-    // Navegación completa a propósito, no wouter: cruza al terreno de Next.js
-    // (/ingresar, /mi son rutas de Next fuera de este catch-all), y un
-    // pushState de wouter ahí no dispara el router de Next — queda la URL
-    // cambiada pero la pantalla vieja en pantalla.
-    if (!usuario) window.location.href = "/ingresar";
-    else if (roles && !roles.includes(usuario.role)) window.location.href = "/mi";
+    // Navegación completa a propósito, no wouter: /ingresar es una ruta de
+    // Next fuera de este catch-all, y un pushState de wouter ahí no dispara
+    // el router de Next — queda la URL cambiada pero la pantalla vieja en
+    // pantalla.
+    if (!usuario || (roles && !roles.includes(usuario.role))) window.location.href = "/ingresar";
   }, [usuario, cargando, roles]);
 
   if (cargando) return <div className="pp-cargando">Cargando…</div>;

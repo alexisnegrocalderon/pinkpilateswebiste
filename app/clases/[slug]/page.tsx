@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, asc, eq } from "drizzle-orm";
 import { classTypes } from "@shared/schema";
+import { CROSSHERO_URL } from "@shared/domain/policy";
 import { DISCIPLINA, NIVEL, clp } from "@/lib/format";
 import { db } from "../../../server/db/client";
 import { SiteFooter } from "../../components/SiteFooter";
@@ -78,12 +79,14 @@ export default async function ClaseDetalle({ params }: { params: Promise<{ slug:
           )}
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="/reservar"
+            <a
+              href={CROSSHERO_URL}
+              target="_blank"
+              rel="noreferrer"
               className="rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white hover:bg-[#e14c76]"
             >
-              Reservar esta clase
-            </Link>
+              Reservar en CrossHero
+            </a>
             <Link
               href="/planes"
               className="rounded-full border border-neutral-300 px-6 py-3 text-[14px] font-semibold text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
