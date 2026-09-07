@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 const NAV = [
-  { href: "/#clases", label: "Clases" },
+  { href: "/clases", label: "Clases" },
   { href: "/planes", label: "Planes" },
   { href: "/reservar", label: "Reservar" },
 ];
@@ -35,7 +35,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/reservar"
-            className="rounded-full bg-neutral-900 px-5 py-2 text-[13.5px] font-semibold text-white transition-colors hover:bg-[#FF5C89]"
+            className="rounded-full bg-[#FF5C89] px-5 py-2 text-[13.5px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
           >
             Reservar clase
           </Link>
@@ -61,7 +61,7 @@ export function SiteHeader() {
               key={n.href}
               href={n.href}
               onClick={() => setAbierto(false)}
-              className="rounded-lg px-3 py-2.5 text-[15px] font-medium text-neutral-700 hover:bg-neutral-50"
+              className="rounded-lg px-3 py-2.5 text-[15px] font-medium text-neutral-700 hover:bg-[#FFDBDB]"
             >
               {n.label}
             </Link>
@@ -69,7 +69,7 @@ export function SiteHeader() {
           <Link
             href="/reservar"
             onClick={() => setAbierto(false)}
-            className="mt-1 rounded-full bg-neutral-900 px-4 py-2.5 text-center text-[14px] font-semibold text-white"
+            className="mt-1 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[14px] font-semibold text-white"
           >
             Reservar clase
           </Link>

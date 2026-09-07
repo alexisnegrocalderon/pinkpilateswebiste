@@ -4,7 +4,7 @@ import { STUDIO } from "@shared/domain/policy";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-neutral-200 bg-white">
+    <footer className="border-t-2 border-[#FFDBDB] bg-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-3">
         <div>
           <div className="flex items-center gap-2.5">
@@ -17,8 +17,9 @@ export function SiteFooter() {
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Estudio</div>
           <ul className="mt-3 space-y-2 text-[14px] text-neutral-600">
-            <li><Link href="/planes" className="hover:text-neutral-900">Planes y precios</Link></li>
-            <li><Link href="/reservar" className="hover:text-neutral-900">Reservar clase</Link></li>
+            <li><Link href="/clases" className="hover:text-[#FF5C89]">Tipos de clase</Link></li>
+            <li><Link href="/planes" className="hover:text-[#FF5C89]">Planes y precios</Link></li>
+            <li><Link href="/reservar" className="hover:text-[#FF5C89]">Reservar clase</Link></li>
           </ul>
         </div>
 
@@ -26,12 +27,12 @@ export function SiteFooter() {
           <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Contacto</div>
           <ul className="mt-3 space-y-2 text-[14px] text-neutral-600">
             <li>
-              <a href={`https://wa.me/${STUDIO.phone.replace("+", "")}`} className="hover:text-neutral-900">
+              <a href={`https://wa.me/${STUDIO.phone.replace("+", "")}`} className="hover:text-[#FF5C89]">
                 WhatsApp
               </a>
             </li>
             <li>
-              <a href={`mailto:${STUDIO.email}`} className="hover:text-neutral-900">
+              <a href={`mailto:${STUDIO.email}`} className="hover:text-[#FF5C89]">
                 {STUDIO.email}
               </a>
             </li>
@@ -40,7 +41,7 @@ export function SiteFooter() {
                 href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-neutral-900"
+                className="hover:text-[#FF5C89]"
               >
                 Instagram {STUDIO.instagram}
               </a>
