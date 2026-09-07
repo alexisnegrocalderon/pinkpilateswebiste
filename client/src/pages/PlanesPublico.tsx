@@ -3,8 +3,8 @@ import { api } from "@/lib/api";
 import { SEGMENTO } from "@/lib/format";
 import { Alerta, Cargando } from "@/components/pp/base";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlanCarousel } from "@/components/planes/PlanCarousel";
-import type { Plan } from "@/components/planes/PlanCard";
+import { PlanStripList } from "@/components/planes/PlanStripList";
+import type { Plan } from "@/components/planes/PlanStrip";
 
 export default function PlanesPublico() {
   const [planes, setPlanes] = useState<Plan[] | null>(null);
@@ -62,7 +62,7 @@ export default function PlanesPublico() {
                 </div>
               )}
 
-              <PlanCarousel plans={planes.filter((p) => p.segment === s)} />
+              <PlanStripList plans={planes.filter((p) => p.segment === s)} />
             </TabsContent>
           ))}
         </Tabs>

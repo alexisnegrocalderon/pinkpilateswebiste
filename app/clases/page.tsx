@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { and, asc, eq } from "drizzle-orm";
 import { classTypes } from "@shared/schema";
+import { CROSSHERO_URL } from "@shared/domain/policy";
 import { DISCIPLINA, NIVEL } from "@/lib/format";
 import { db } from "../../server/db/client";
 import { SiteFooter } from "../components/SiteFooter";
@@ -33,23 +34,32 @@ export default async function ClasesPage() {
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {clases.map((c) => (
-              <Link
+              <div
                 key={c.id}
-                href={`/clases/${c.slug}`}
                 className="group flex flex-col rounded-2xl border border-neutral-200 p-6 transition-colors hover:border-[#FF5C89]"
               >
-                <span className="w-fit rounded-full bg-[#FFDBDB] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#B4285A]">
-                  {DISCIPLINA[c.discipline] ?? c.discipline}
-                </span>
-                <h2 className="mt-4 text-[19px] font-semibold text-neutral-900 group-hover:text-[#FF5C89]">{c.name}</h2>
-                <p className="mt-2 flex-1 text-[14px] leading-relaxed text-neutral-600">
-                  {c.shortDescription ?? c.description?.slice(0, 120) ?? ""}
-                </p>
-                <div className="mt-4 flex items-center justify-between text-[13px] text-neutral-500">
-                  <span>{NIVEL[c.level] ?? c.level}</span>
-                  <span>{c.defaultDurationMin} min</span>
-                </div>
-              </Link>
+                <Link href={`/clases/${c.slug}`} className="flex flex-1 flex-col">
+                  <span className="w-fit rounded-full bg-[#FFDBDB] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#B4285A]">
+                    {DISCIPLINA[c.discipline] ?? c.discipline}
+                  </span>
+                  <h2 className="mt-4 text-[19px] font-semibold text-neutral-900 group-hover:text-[#FF5C89]">{c.name}</h2>
+                  <p className="mt-2 flex-1 text-[14px] leading-relaxed text-neutral-600">
+                    {c.shortDescription ?? c.description?.slice(0, 120) ?? ""}
+                  </p>
+                  <div className="mt-4 flex items-center justify-between text-[13px] text-neutral-500">
+                    <span>{NIVEL[c.level] ?? c.level}</span>
+                    <span>{c.defaultDurationMin} min</span>
+                  </div>
+                </Link>
+                <a
+                  href={CROSSHERO_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 block rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
+                >
+                  Reservar en CrossHero
+                </a>
+              </div>
             ))}
           </div>
         </div>
