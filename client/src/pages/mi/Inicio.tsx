@@ -32,7 +32,7 @@ export default function MiInicio() {
     <StudentShell
       titulo={`Hola, ${usuario?.firstName}`}
       sub="Tu plan y tus próximas clases"
-      acciones={<Link href="/reservar" className="pp-btn primario">Reservar una clase</Link>}
+      acciones={<a href="/reservar" className="pp-btn primario">Reservar una clase</a>}
     >
       {porVerificar && (
         <div style={{ marginBottom: 18 }}>
@@ -47,7 +47,7 @@ export default function MiInicio() {
         <div style={{ marginBottom: 18 }}>
           <Alerta tono="info">
             No tienes un plan activo.{" "}
-            <Link href="/planes" style={{ color: "var(--rosa)", fontWeight: 700 }}>Mira los planes disponibles →</Link>
+            <a href="/planes" style={{ color: "var(--rosa)", fontWeight: 700 }}>Mira los planes disponibles →</a>
           </Alerta>
         </div>
       )}

@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { useLocation } from "wouter";
 import { api, ApiError } from "./api";
 
 export type Usuario = {
@@ -75,13 +74,16 @@ export function useAuth() {
 /** Protege una rama del árbol. Redirige en vez de mostrar un error seco. */
 export function Protegido({ roles, children }: { roles?: Usuario["role"][]; children: ReactNode }) {
   const { usuario, cargando } = useAuth();
-  const [, navegar] = useLocation();
 
   useEffect(() => {
     if (cargando) return;
-    if (!usuario) navegar("/ingresar");
-    else if (roles && !roles.includes(usuario.role)) navegar("/mi");
-  }, [usuario, cargando, roles, navegar]);
+    // Navegación completa a propósito, no wouter: cruza al terreno de Next.js
+    // (/ingresar, /mi son rutas de Next fuera de este catch-all), y un
+    // pushState de wouter ahí no dispara el router de Next — queda la URL
+    // cambiada pero la pantalla vieja en pantalla.
+    if (!usuario) window.location.href = "/ingresar";
+    else if (roles && !roles.includes(usuario.role)) window.location.href = "/mi";
+  }, [usuario, cargando, roles]);
 
   if (cargando) return <div className="pp-cargando">Cargando…</div>;
   if (!usuario) return null;

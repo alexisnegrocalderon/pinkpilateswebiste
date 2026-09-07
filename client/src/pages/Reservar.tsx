@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
 import { Users } from "lucide-react";
+import { Link } from "@/components/NavLink";
 import { api, ApiError } from "@/lib/api";
 import { diaCorto, diaNumero, fechaRelativa, hora, hoyEnSantiago } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
@@ -24,7 +24,6 @@ const addDays = (iso: string, n: number) => {
 export default function Reservar() {
   const hoy = hoyEnSantiago();
   const { usuario, cargando } = useAuth();
-  const [, navegar] = useLocation();
   const [dia, setDia] = useState(hoy);
   const [tipo, setTipo] = useState("");
   const [clases, setClases] = useState<Clase[] | null>(null);
@@ -42,7 +41,7 @@ export default function Reservar() {
   const delDia = (clases ?? []).filter((c) => c.localDate === dia && (!tipo || c.classTypeId === tipo));
 
   async function reservar(c: Clase) {
-    if (!usuario) return navegar("/ingresar");
+    if (!usuario) return void (window.location.href = "/ingresar");
     setOcupado(c.id);
     setAviso(null);
     try {
@@ -64,7 +63,7 @@ export default function Reservar() {
   }
 
   async function esperar(c: Clase) {
-    if (!usuario) return navegar("/ingresar");
+    if (!usuario) return void (window.location.href = "/ingresar");
     setOcupado(c.id);
     try {
       const r = await api.post<{ position: number; warning: string | null }>(`/sessions/${c.id}/waitlist`);
