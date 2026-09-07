@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CROSSHERO_URL, STUDIO } from "@shared/domain/policy";
+import { STUDIO } from "@shared/domain/policy";
 
 export function SiteFooter() {
   return (
@@ -19,11 +19,6 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-[14px] text-neutral-600">
             <li><Link href="/clases" className="hover:text-[#FF5C89]">Tipos de clase</Link></li>
             <li><Link href="/planes" className="hover:text-[#FF5C89]">Planes y precios</Link></li>
-            <li>
-              <a href={CROSSHERO_URL} target="_blank" rel="noreferrer" className="hover:text-[#FF5C89]">
-                Reservar en CrossHero
-              </a>
-            </li>
             <li><Link href="/quienes-somos" className="hover:text-[#FF5C89]">Quiénes somos</Link></li>
             <li><Link href="/reglamento" className="hover:text-[#FF5C89]">Reglamento</Link></li>
             <li><Link href="/galeria" className="hover:text-[#FF5C89]">Galería</Link></li>

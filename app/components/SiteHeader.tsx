@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { CROSSHERO_URL } from "@shared/domain/policy";
 
 const NAV = [
   { href: "/clases", label: "Clases" },
@@ -28,14 +27,12 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <a
-            href={CROSSHERO_URL}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/planes"
             className="rounded-full bg-[#FF5C89] px-5 py-2 text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#e14c76]"
           >
-            Reservar en CrossHero
-          </a>
+            Comprar plan
+          </Link>
         </nav>
 
         <button
@@ -63,15 +60,13 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <a
-            href={CROSSHERO_URL}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/planes"
             onClick={() => setAbierto(false)}
             className="mt-1 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[14px] font-semibold uppercase tracking-wide text-white"
           >
-            Reservar en CrossHero
-          </a>
+            Comprar plan
+          </Link>
         </nav>
       )}
     </header>

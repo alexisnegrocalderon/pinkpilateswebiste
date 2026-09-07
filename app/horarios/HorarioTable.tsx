@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Heart } from "lucide-react";
-import { CROSSHERO_URL } from "@shared/domain/policy";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -112,14 +112,12 @@ export function HorarioTable() {
       </Tabs>
 
       <div className="mt-6 text-center">
-        <a
-          href={CROSSHERO_URL}
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          href="/planes"
           className="inline-block rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white hover:bg-[#e14c76]"
         >
-          Ver cupos y reservar en CrossHero
-        </a>
+          Ver planes y comprar
+        </Link>
       </div>
     </div>
   );

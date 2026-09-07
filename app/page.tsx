@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CROSSHERO_URL, STUDIO } from "@shared/domain/policy";
+import { STUDIO } from "@shared/domain/policy";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 
@@ -41,19 +41,17 @@ export default function Home() {
               Estudio boutique con clases reducidas y equipamiento profesional. Reserva por créditos, a tu ritmo.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href={CROSSHERO_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.03]"
-              >
-                Reservar clase de prueba
-              </a>
               <Link
                 href="/planes"
+                className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.03]"
+              >
+                Comprar un plan
+              </Link>
+              <Link
+                href="/clases"
                 className="rounded-full border border-white/50 px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-white/10"
               >
-                Ver planes
+                Ver clases
               </Link>
             </div>
           </div>
@@ -158,22 +156,14 @@ export default function Home() {
             ¿Lista para tu primera clase?
           </h2>
           <p className="mx-auto mt-4 max-w-md text-[15px] text-neutral-600">
-            Reserva tu clase de prueba o revisa los planes y elige el que mejor calce contigo.
+            Elige el plan que mejor calce contigo y paga directo desde aquí.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <a
-              href={CROSSHERO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white hover:bg-[#e14c76]"
-            >
-              Reservar en CrossHero
-            </a>
             <Link
               href="/planes"
-              className="rounded-full border border-neutral-400 bg-white px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
+              className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white hover:bg-[#e14c76]"
             >
-              Ver planes
+              Comprar un plan
             </Link>
           </div>
         </section>

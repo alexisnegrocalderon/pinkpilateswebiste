@@ -30,3 +30,12 @@ export const strictAuthRateLimit = rateLimit({
   legacyHeaders: false,
   handler: respondRateLimited,
 });
+
+/** Crear órdenes de compra es público (sin login) — freno contra spam de órdenes. */
+export const checkoutRateLimit = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: respondRateLimited,
+});

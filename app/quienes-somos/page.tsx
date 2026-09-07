@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CROSSHERO_URL } from "@shared/domain/policy";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
 
@@ -50,14 +49,12 @@ export default function QuienesSomosPage() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <a
-              href={CROSSHERO_URL}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/planes"
               className="rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white hover:bg-[#e14c76]"
             >
-              Reservar en CrossHero
-            </a>
+              Comprar un plan
+            </Link>
             <Link
               href="/clases"
               className="rounded-full border border-neutral-300 px-6 py-3 text-[14px] font-semibold text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"

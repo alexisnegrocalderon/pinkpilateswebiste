@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { and, asc, eq } from "drizzle-orm";
 import { classTypes } from "@shared/schema";
-import { CROSSHERO_URL } from "@shared/domain/policy";
 import { DISCIPLINA, NIVEL } from "@/lib/format";
 import { db } from "../../server/db/client";
 import { SiteFooter } from "../components/SiteFooter";
@@ -51,14 +50,12 @@ export default async function ClasesPage() {
                     <span>{c.defaultDurationMin} min</span>
                   </div>
                 </Link>
-                <a
-                  href={CROSSHERO_URL}
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  href="/planes"
                   className="mt-4 block rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
                 >
-                  Reservar en CrossHero
-                </a>
+                  Ver planes y comprar
+                </Link>
               </div>
             ))}
           </div>
