@@ -3,7 +3,7 @@ import { STUDIO } from "@shared/domain/policy";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 
-const HECHOS = ["5 reformers", "Clases reducidas", "Angamos 326, Reñaca", "Créditos flexibles"];
+const HECHOS = ["Sólo 5 reformers por clase", "+11 años en Reñaca", "Clases reducidas", "Créditos flexibles"];
 
 const EQUIPO = ["Reformer", "Wall Unit", "Chair", "Ladder Barrel", "Spine Corrector", "Mat"];
 
@@ -23,7 +23,7 @@ export default function Home() {
             loop
             playsInline
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/20" />
           <div
             aria-hidden
             className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FF5C89]/70 blur-2xl sm:h-96 sm:w-96"
@@ -33,11 +33,11 @@ export default function Home() {
             <span className="inline-block rounded-full bg-[#FF5C89] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-white">
               Estudio boutique · Reñaca
             </span>
-            <h1 className="mt-5 max-w-3xl text-[44px] uppercase leading-[0.95] tracking-tight text-white [font-family:var(--font-display)] sm:text-[76px]">
+            <h1 className="mt-5 max-w-3xl text-[44px] uppercase leading-[0.95] tracking-tight text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.6)] [font-family:var(--font-display)] sm:text-[76px]">
               Pilates Reformer,{" "}
-              <span className="text-[#FFB4C8]">a tu ritmo</span>
+              <span className="text-[#FF5C89]">a tu ritmo</span>
             </h1>
-            <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/85">
+            <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
               Estudio boutique con clases reducidas y equipamiento profesional. Reserva por créditos, a tu ritmo.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
