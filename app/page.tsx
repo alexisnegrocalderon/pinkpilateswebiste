@@ -29,7 +29,7 @@ export default function Home() {
             className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FF5C89]/70 blur-2xl sm:h-96 sm:w-96"
           />
 
-          <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-32">
+          <div className="relative mx-auto w-full max-w-6xl px-5 pb-28 pt-32 sm:pb-20 lg:pb-16">
             <span className="inline-block rounded-full bg-[#FF5C89] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-white">
               Estudio boutique · Reñaca
             </span>
