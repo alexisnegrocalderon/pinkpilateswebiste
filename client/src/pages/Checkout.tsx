@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import { Lock } from "lucide-react";
+import { Link } from "@/components/NavLink";
 import { api } from "@/lib/api";
 import { clp, ESTADO_ORDEN } from "@/lib/format";
 import { Alerta, Cargando, Tarjeta, TarjetaCabecera } from "@/components/pp/base";
@@ -12,7 +13,6 @@ type Orden = {
 
 export default function Checkout() {
   const [, params] = useRoute("/checkout/:id");
-  const [, navegar] = useLocation();
   const [o, setO] = useState<Orden | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -25,7 +25,8 @@ export default function Checkout() {
     setOcupado(true);
     try {
       const r = await api.post<{ redirectUrl: string }>(`/orders/${params!.id}/checkout`);
-      navegar(r.redirectUrl);
+      // Navegación real: puede ser una URL externa (pasarela de pago real).
+      window.location.href = r.redirectUrl;
     } catch (e) {
       setError((e as Error).message);
       setOcupado(false);

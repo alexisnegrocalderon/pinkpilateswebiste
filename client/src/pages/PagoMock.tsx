@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import { Lock, ShieldCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { clp } from "@/lib/format";
@@ -14,7 +14,6 @@ type Token = { orderId: string; orderNumber: string; amountClp: number };
  */
 export default function PagoMock() {
   const [, params] = useRoute("/pagar/mock/:token");
-  const [, navegar] = useLocation();
   const [t, setT] = useState<Token | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [procesando, setProcesando] = useState<string | null>(null);
@@ -28,7 +27,7 @@ export default function PagoMock() {
     setProcesando(resultado);
     try {
       const r = await api.post<{ returnUrl: string }>(`/payments/mock/${params!.token}/${resultado}`);
-      navegar(r.returnUrl);
+      window.location.href = r.returnUrl;
     } catch (e) {
       setError((e as Error).message);
       setProcesando(null);

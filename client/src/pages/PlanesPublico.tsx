@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
 import { Check } from "lucide-react";
+import { Link } from "@/components/NavLink";
 import { api } from "@/lib/api";
 import { clp, SEGMENTO } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
@@ -19,15 +19,14 @@ export default function PlanesPublico() {
   const [segmento, setSegmento] = useState("adult");
   const [error, setError] = useState<string | null>(null);
   const { usuario } = useAuth();
-  const [, navegar] = useLocation();
 
   useEffect(() => { api.get<Plan[]>("/public/plans").then(setPlanes); }, []);
 
   async function comprar(p: Plan) {
-    if (!usuario) return navegar("/ingresar");
+    if (!usuario) return void (window.location.href = "/ingresar");
     try {
       const orden = await api.post<{ orderId: string }>("/orders", { planSlug: p.slug });
-      navegar(`/checkout/${orden.orderId}`);
+      window.location.href = `/checkout/${orden.orderId}`;
     } catch (e) {
       setError((e as Error).message);
     }

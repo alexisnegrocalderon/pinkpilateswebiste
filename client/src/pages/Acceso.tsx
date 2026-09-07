@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from "react";
-import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Alerta } from "@/components/pp/base";
+import { Link } from "@/components/NavLink";
 
 /** Login y registro comparten marco: una sola pantalla con dos modos. */
 export default function Acceso({ modo }: { modo: "entrar" | "crear" }) {
   const { entrar, registrarse } = useAuth();
-  const [, navegar] = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [f, setF] = useState({
@@ -30,7 +29,7 @@ export default function Acceso({ modo }: { modo: "entrar" | "crear" }) {
             emergencyContactPhone: f.emergencyContactPhone || undefined,
             healthNotes: f.healthNotes || undefined,
           });
-      navegar(u.role === "student" ? "/mi" : "/admin");
+      window.location.href = u.role === "student" ? "/mi" : "/admin";
     } catch (err) {
       setError((err as Error).message);
     } finally {

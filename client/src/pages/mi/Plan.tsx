@@ -31,7 +31,7 @@ export default function MiPlan() {
     <StudentShell
       titulo="Mi plan"
       sub="Tus créditos y todo lo que has comprado"
-      acciones={<Link href="/planes" className="pp-btn chico primario">Comprar otro plan</Link>}
+      acciones={<a href="/planes" className="pp-btn chico primario">Comprar otro plan</a>}
     >
       {vigente ? (
         <Tarjeta style={{ marginBottom: 18 }}>
@@ -49,7 +49,7 @@ export default function MiPlan() {
       ) : (
         <Tarjeta style={{ marginBottom: 18 }}>
           <Vacio titulo="No tienes un plan activo">
-            <Link href="/planes" style={{ color: "var(--rosa)", fontWeight: 700 }}>Mira los planes disponibles →</Link>
+            <a href="/planes" style={{ color: "var(--rosa)", fontWeight: 700 }}>Mira los planes disponibles →</a>
           </Vacio>
         </Tarjeta>
       )}

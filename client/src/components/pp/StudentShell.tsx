@@ -42,7 +42,8 @@ export default function StudentShell({ titulo, sub, acciones, children }: {
           })}
 
           <div style={{ marginTop: 16 }}>
-            <Link href="/reservar" className="pp-btn primario ancho">Reservar una clase</Link>
+            {/* <a>, no Link de wouter: /reservar es otra ruta de Next, fuera de este catch-all. */}
+            <a href="/reservar" className="pp-btn primario ancho">Reservar una clase</a>
           </div>
 
           <div className="pp-lateral-pie">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { Link } from "@/components/NavLink";
 import { api } from "@/lib/api";
 import { clp } from "@/lib/format";
 import { Cargando, Tarjeta } from "@/components/pp/base";

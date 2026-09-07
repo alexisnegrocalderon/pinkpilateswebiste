@@ -97,3 +97,21 @@ export const SEGMENTO: Record<string, string> = {
   valle: "Valle",
   special: "Especiales",
 };
+
+export const DISCIPLINA: Record<string, string> = {
+  apparatus: "Reformer",
+  mat: "Mat",
+  barre: "Barré",
+  dance: "Baile",
+  prenatal: "Embarazo",
+  senior: "Adulto mayor",
+  bridal: "Novias",
+  teacher_training: "Formación de instructoras",
+};
+
+export const NIVEL: Record<string, string> = {
+  intro: "Introductorio",
+  all_levels: "Todo nivel",
+  intermediate: "Intermedio",
+  advanced: "Avanzado",
+};
