@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Instagram } from "lucide-react";
+import { STUDIO } from "@shared/domain/policy";
 import {
   Accordion,
   AccordionContent,
@@ -144,9 +146,19 @@ export function SiteHeader() {
             </NavigationMenuList>
           </NavigationMenu>
 
+          <a
+            href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram de Pink Pilates"
+            className="ml-2 flex h-9 w-9 items-center justify-center rounded-full border border-[#FF5C89]/40 text-[#FF5C89] transition-colors hover:bg-[#FF5C89] hover:text-white"
+          >
+            <Instagram size={16} strokeWidth={2} />
+          </a>
+
           <Link
             href="/planes"
-            className="ml-3 rounded-full bg-[#FF5C89] px-5 py-2 text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#e14c76]"
+            className="ml-2 rounded-full bg-[#FF5C89] px-5 py-2 text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#e14c76]"
           >
             Comprar plan
           </Link>
@@ -238,6 +250,15 @@ export function SiteHeader() {
           >
             Contacto
           </Link>
+          <a
+            href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setAbierto(false)}
+            className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[15px] font-semibold uppercase tracking-wide text-neutral-700 hover:bg-[#FFDBDB]"
+          >
+            <Instagram size={16} className="text-[#FF5C89]" strokeWidth={2} /> Instagram
+          </a>
 
           <Link
             href="/planes"

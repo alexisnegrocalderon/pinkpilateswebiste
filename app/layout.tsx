@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Archivo } from "next/font/google";
 import { STUDIO } from "@shared/domain/policy";
+import { FloatingCta } from "./components/FloatingCta";
 import { Providers } from "./providers";
 import "@/index.css";
 // Tema del panel /admin y /mi. Todo queda bajo la clase .pp-app, así que
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ fontFamily: "var(--font-archivo), system-ui, sans-serif" }}>
         <Providers>{children}</Providers>
+        <FloatingCta />
       </body>
     </html>
   );
