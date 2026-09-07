@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
-import { Link } from "@/components/NavLink";
 import { api } from "@/lib/api";
-import { clp, SEGMENTO } from "@/lib/format";
+import { SEGMENTO } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
-import { Alerta, Cargando, Tarjeta } from "@/components/pp/base";
-
-type Plan = {
-  id: string; slug: string; name: string; segment: string; periodMonths: number; credits: number;
-  priceClp: number; validityDays: number; requiresVerification: boolean; isDropIn: boolean;
-  allowedWeekdays: number[] | null; allowedTimeFrom: string | null; allowedTimeTo: string | null; badge: string | null;
-};
-
-const PERIODO: Record<number, string> = { 1: "1 mes", 3: "3 meses", 6: "6 meses", 12: "12 meses" };
+import { Alerta, Cargando } from "@/components/pp/base";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanCarousel } from "@/components/planes/PlanCarousel";
+import type { Plan } from "@/components/planes/PlanCard";
 
 export default function PlanesPublico() {
   const [planes, setPlanes] = useState<Plan[] | null>(null);
@@ -35,99 +28,61 @@ export default function PlanesPublico() {
   if (!planes) return <div className="pp-app"><Cargando que="los planes" /></div>;
 
   const segmentos = [...new Set(planes.map((p) => p.segment))];
-  const delSegmento = planes.filter((p) => p.segment === segmento);
 
   return (
     <div className="pp-app">
-      <header className="pp-cabecera">
-        <div>
-          <h1>Planes</h1>
-          <p>Un crédito equivale a una clase</p>
+      <section className="relative overflow-hidden px-5 pb-6 pt-16 sm:pt-20">
+        <div aria-hidden className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#FF5C89]/20 blur-2xl" />
+        <div className="relative mx-auto max-w-3xl text-center">
+          <h1 className="text-[36px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[48px]">
+            Planes y precios
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">Un crédito equivale a una clase.</p>
         </div>
-        <div className="pp-cabecera-acciones">
-          <Link href="/reservar" className="pp-btn chico">Ver horarios</Link>
-          {usuario
-            ? <Link href="/mi" className="pp-btn chico primario">Mi cuenta</Link>
-            : <Link href="/ingresar" className="pp-btn chico primario">Entrar</Link>}
-        </div>
-      </header>
+      </section>
 
-      <main className="pp-contenido">
-        {error && <div style={{ marginBottom: 16 }}><Alerta tono="mal">{error}</Alerta></div>}
+      <main className="mx-auto max-w-6xl px-5 pb-24">
+        {error && (
+          <div className="mx-auto mb-6 max-w-xl">
+            <Alerta tono="mal">{error}</Alerta>
+          </div>
+        )}
 
-        <div className="pp-filtros" style={{ marginBottom: 20 }}>
+        <Tabs value={segmento} onValueChange={setSegmento}>
+          <TabsList className="mx-auto mb-8 flex h-auto w-fit max-w-full gap-2 overflow-x-auto rounded-full bg-transparent p-0">
+            {segmentos.map((s) => (
+              <TabsTrigger
+                key={s}
+                value={s}
+                className="rounded-full border-none bg-[#FFDBDB] px-4 py-2 text-[13.5px] font-semibold text-[#B4285A] shadow-none transition-colors data-[state=active]:!bg-[#FF5C89] data-[state=active]:!text-white data-[state=active]:shadow-none"
+              >
+                {SEGMENTO[s] ?? s}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
           {segmentos.map((s) => (
-            <button key={s} className="pp-chip" aria-pressed={segmento === s} onClick={() => setSegmento(s)}>
-              {SEGMENTO[s] ?? s}
-            </button>
-          ))}
-        </div>
-
-        {segmento === "valle" && (
-          <div style={{ marginBottom: 18, maxWidth: 640 }}>
-            <Alerta tono="info">
-              Los planes valle son más económicos porque se usan en los horarios más tranquilos:
-              de lunes a viernes entre las 15:00 y las 17:00.
-            </Alerta>
-          </div>
-        )}
-        {segmento === "student" && (
-          <div style={{ marginBottom: 18, maxWidth: 640 }}>
-            <Alerta tono="info">
-              Necesitas presentar tu certificado de alumno regular. El plan queda listo apenas el estudio lo verifica.
-            </Alerta>
-          </div>
-        )}
-
-        <div className="pp-grilla" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(258px, 1fr))" }}>
-          {delSegmento.map((p) => (
-            <Tarjeta key={p.id} style={p.badge ? { borderColor: "var(--rosa)", borderWidth: 2 } : undefined}>
-              <div className="pp-tarjeta-cuerpo">
-                {p.badge && (
-                  <div style={{
-                    display: "inline-block", background: "var(--rosa)", color: "#fff", fontSize: 11,
-                    fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase",
-                    padding: "3px 10px", borderRadius: 999, marginBottom: 10,
-                  }}>{p.badge}</div>
-                )}
-                <h3 style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.02em" }}>{p.name}</h3>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6, margin: "12px 0 4px" }}>
-                  <span style={{ fontSize: 30, fontWeight: 750, letterSpacing: "-.03em" }}>{clp(p.priceClp)}</span>
+            <TabsContent key={s} value={s}>
+              {s === "valle" && (
+                <div className="mx-auto mb-6 max-w-xl">
+                  <Alerta tono="info">
+                    Los planes valle son más económicos porque se usan en los horarios más tranquilos:
+                    de lunes a viernes entre las 15:00 y las 17:00.
+                  </Alerta>
                 </div>
-                <p style={{ fontSize: 13.5, color: "var(--tinta-suave)", marginBottom: 16 }}>
-                  {clp(Math.round(p.priceClp / p.credits))} por clase
-                </p>
+              )}
+              {s === "student" && (
+                <div className="mx-auto mb-6 max-w-xl">
+                  <Alerta tono="info">
+                    Necesitas presentar tu certificado de alumno regular. El plan queda listo apenas el estudio lo verifica.
+                  </Alerta>
+                </div>
+              )}
 
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 18px", display: "grid", gap: 8, fontSize: 14 }}>
-                  <li style={{ display: "flex", gap: 8 }}>
-                    <Check size={16} style={{ color: "var(--verde)", flex: "0 0 auto", marginTop: 2 }} />
-                    <span><b>{p.credits}</b> {p.credits === 1 ? "clase" : "clases"}</span>
-                  </li>
-                  <li style={{ display: "flex", gap: 8 }}>
-                    <Check size={16} style={{ color: "var(--verde)", flex: "0 0 auto", marginTop: 2 }} />
-                    <span>Vigencia de {PERIODO[p.periodMonths] ?? `${p.validityDays} días`}</span>
-                  </li>
-                  {p.allowedWeekdays && (
-                    <li style={{ display: "flex", gap: 8 }}>
-                      <Check size={16} style={{ color: "var(--verde)", flex: "0 0 auto", marginTop: 2 }} />
-                      <span>Lun a vie, 15:00 a 17:00</span>
-                    </li>
-                  )}
-                  {p.requiresVerification && (
-                    <li style={{ display: "flex", gap: 8, color: "var(--ambar)" }}>
-                      <Check size={16} style={{ flex: "0 0 auto", marginTop: 2 }} />
-                      <span>Con certificado de alumno regular</span>
-                    </li>
-                  )}
-                </ul>
-
-                <button className="pp-btn primario ancho" onClick={() => void comprar(p)}>
-                  {usuario ? "Comprar" : "Entrar y comprar"}
-                </button>
-              </div>
-            </Tarjeta>
+              <PlanCarousel plans={planes.filter((p) => p.segment === s)} loggedIn={!!usuario} onComprar={comprar} />
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
       </main>
     </div>
   );
