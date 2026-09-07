@@ -164,17 +164,29 @@ export function SiteHeader() {
           </Link>
         </nav>
 
-        <button
-          className="flex h-9 w-9 items-center justify-center md:hidden"
-          aria-label="Abrir menú"
-          aria-expanded={abierto}
-          onClick={() => setAbierto((v) => !v)}
-        >
-          <span className="relative block h-3.5 w-5">
-            <span className={`absolute left-0 top-0 h-[1.5px] w-5 bg-neutral-900 transition-transform ${abierto ? "translate-y-[6px] rotate-45" : ""}`} />
-            <span className={`absolute left-0 bottom-0 h-[1.5px] w-5 bg-neutral-900 transition-transform ${abierto ? "-translate-y-[6px] -rotate-45" : ""}`} />
-          </span>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <a
+            href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram de Pink Pilates"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#FF5C89]/40 text-[#FF5C89] transition-colors hover:bg-[#FF5C89] hover:text-white"
+          >
+            <Instagram size={16} strokeWidth={2} />
+          </a>
+
+          <button
+            className="flex h-9 w-9 items-center justify-center"
+            aria-label="Abrir menú"
+            aria-expanded={abierto}
+            onClick={() => setAbierto((v) => !v)}
+          >
+            <span className="relative block h-3.5 w-5">
+              <span className={`absolute left-0 top-0 h-[1.5px] w-5 bg-neutral-900 transition-transform ${abierto ? "translate-y-[6px] rotate-45" : ""}`} />
+              <span className={`absolute left-0 bottom-0 h-[1.5px] w-5 bg-neutral-900 transition-transform ${abierto ? "-translate-y-[6px] -rotate-45" : ""}`} />
+            </span>
+          </button>
+        </div>
       </div>
 
       {abierto && (
@@ -250,15 +262,6 @@ export function SiteHeader() {
           >
             Contacto
           </Link>
-          <a
-            href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setAbierto(false)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[15px] font-semibold uppercase tracking-wide text-neutral-700 hover:bg-[#FFDBDB]"
-          >
-            <Instagram size={16} className="text-[#FF5C89]" strokeWidth={2} /> Instagram
-          </a>
 
           <Link
             href="/planes"
