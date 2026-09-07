@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import { STUDIO } from "@shared/domain/policy";
+import { CROSSHERO_URL, STUDIO } from "@shared/domain/policy";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
 
@@ -30,9 +30,24 @@ export function ContactoClient() {
             Contacto
           </h1>
           <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">
-            Escríbenos y te respondemos a la brevedad — para reservar una clase, hazlo directo en CrossHero.
+            Escríbenos y te respondemos a la brevedad — para reservar una clase, hazlo directo en{" "}
+            <a href={CROSSHERO_URL} target="_blank" rel="noreferrer" className="font-medium text-[#FF5C89] hover:underline">
+              CrossHero
+            </a>
+            .
           </p>
         </section>
+
+        <div className="mx-auto max-w-md px-5 pb-6 text-center">
+          <a
+            href={CROSSHERO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white hover:bg-[#e14c76]"
+          >
+            Reservar en CrossHero
+          </a>
+        </div>
 
         <div className="mx-auto max-w-md px-5 pb-24">
           {estado === "ok" ? (

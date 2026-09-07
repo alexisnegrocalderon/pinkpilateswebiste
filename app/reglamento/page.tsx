@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Check } from "lucide-react";
+import { CROSSHERO_URL } from "@shared/domain/policy";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
 
@@ -90,7 +91,17 @@ export default function ReglamentoPage() {
           {SECCIONES.map((s) => (
             <div key={s.titulo} className="mb-10">
               <h2 className="text-[19px] font-semibold text-neutral-900">{s.titulo}</h2>
-              {s.texto && <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">{s.texto}</p>}
+              {s.texto && s.titulo === "Clases" ? (
+                <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">
+                  Las clases se reservan a través de la app{" "}
+                  <a href={CROSSHERO_URL} target="_blank" rel="noreferrer" className="font-medium text-[#FF5C89] hover:underline">
+                    CrossHero
+                  </a>{" "}
+                  o por WhatsApp, nuestros canales oficiales.
+                </p>
+              ) : (
+                s.texto && <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">{s.texto}</p>
+              )}
               {s.puntos && (
                 <ul className="mt-3 grid gap-2">
                   {s.puntos.map((p) => (
