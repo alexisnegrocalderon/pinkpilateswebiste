@@ -1,43 +1,21 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import {
-  BarChart3, CalendarDays, ClipboardList, CreditCard, LayoutDashboard, LogOut,
-  Mail, Menu, Settings, ShieldCheck, Tag, Users,
-} from "lucide-react";
+import { BookOpen, LogOut, Mail, Menu, Tag, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { iniciales } from "./base";
 
+/**
+ * El sitio pasó a ser 100% marketing/SEO — las reservas y pagos los
+ * gestiona Javiera desde CrossHero. Lo único que queda por editar acá es
+ * contenido: precios que se muestran, descripciones de clase, los
+ * contactos que llegan por el formulario, y la base de conocimiento para
+ * el futuro agente de WhatsApp.
+ */
 const NAV = [
-  {
-    grupo: "Operación",
-    items: [
-      { href: "/admin", icono: LayoutDashboard, texto: "Resumen" },
-      { href: "/admin/agenda", icono: CalendarDays, texto: "Agenda" },
-      { href: "/admin/horarios", icono: ClipboardList, texto: "Horario semanal" },
-    ],
-  },
-  {
-    grupo: "Negocio",
-    items: [
-      { href: "/admin/alumnas", icono: Users, texto: "Alumnas" },
-      { href: "/admin/planes", icono: Tag, texto: "Planes y precios" },
-      { href: "/admin/pagos", icono: CreditCard, texto: "Pagos" },
-    ],
-  },
-  {
-    grupo: "Crecimiento",
-    items: [
-      { href: "/admin/emails", icono: Mail, texto: "Emails" },
-      { href: "/admin/reportes", icono: BarChart3, texto: "Reportes" },
-    ],
-  },
-  {
-    grupo: "Estudio",
-    items: [
-      { href: "/admin/config", icono: Settings, texto: "Configuración" },
-      { href: "/admin/auditoria", icono: ShieldCheck, texto: "Historial" },
-    ],
-  },
+  { href: "/admin/planes", icono: Tag, texto: "Planes y precios" },
+  { href: "/admin/clases", icono: Users, texto: "Clases" },
+  { href: "/admin/contactos", icono: Mail, texto: "Contactos" },
+  { href: "/admin/conocimiento", icono: BookOpen, texto: "Base de conocimiento" },
 ];
 
 export default function AdminShell({
@@ -61,28 +39,22 @@ export default function AdminShell({
             </div>
           </div>
 
-          {NAV.map((g) => (
-            <div key={g.grupo}>
-              <div className="pp-nav-grupo">{g.grupo}</div>
-              {g.items.map((it) => {
-                const Icono = it.icono;
-                // Sólo /admin exacto, si no todas las rutas quedarían activas.
-                const activo = it.href === "/admin" ? ruta === "/admin" : ruta.startsWith(it.href);
-                return (
-                  <Link
-                    key={it.href}
-                    href={it.href}
-                    className="pp-nav-item"
-                    aria-current={activo ? "page" : undefined}
-                    onClick={() => setMenuAbierto(false)}
-                  >
-                    <Icono />
-                    {it.texto}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+          {NAV.map((it) => {
+            const Icono = it.icono;
+            const activo = ruta.startsWith(it.href);
+            return (
+              <Link
+                key={it.href}
+                href={it.href}
+                className="pp-nav-item"
+                aria-current={activo ? "page" : undefined}
+                onClick={() => setMenuAbierto(false)}
+              >
+                <Icono />
+                {it.texto}
+              </Link>
+            );
+          })}
 
           <div className="pp-lateral-pie">
             <div className="pp-usuario">

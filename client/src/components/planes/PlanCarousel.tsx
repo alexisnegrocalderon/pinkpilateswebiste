@@ -3,15 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { PlanCard, type Plan } from "./PlanCard";
 
-export function PlanCarousel({
-  plans,
-  loggedIn,
-  onComprar,
-}: {
-  plans: Plan[];
-  loggedIn: boolean;
-  onComprar: (p: Plan) => void;
-}) {
+export function PlanCarousel({ plans }: { plans: Plan[] }) {
   const [api, setApi] = useState<CarouselApi>();
   const [seleccionado, setSeleccionado] = useState(0);
 
@@ -31,7 +23,7 @@ export function PlanCarousel({
         <CarouselContent>
           {ordenados.map((p) => (
             <CarouselItem key={p.id} className="basis-[85%] sm:basis-1/2 lg:basis-1/3">
-              <PlanCard plan={p} loggedIn={loggedIn} onComprar={onComprar} />
+              <PlanCard plan={p} />
             </CarouselItem>
           ))}
         </CarouselContent>

@@ -1,19 +1,10 @@
-/** Valores por defecto de las políticas del estudio; editables en /panel/config. */
+/**
+ * El sitio ya no gestiona reservas ni pagos (Javiera usa CrossHero para eso),
+ * así que lo único que queda en `settings` es la base de conocimiento del
+ * negocio para el futuro agente de WhatsApp — ver /admin/conocimiento.
+ */
 export const DEFAULT_SETTINGS = {
-  /** Horas antes del inicio bajo las cuales cancelar cuesta el crédito. */
-  late_cancel_hours: 12,
-  /** Con cuántos días de anticipación se abre la reserva. */
-  booking_opens_days_ahead: 30,
-  /** Minutos antes del inicio en que se cierra la reserva. */
-  booking_closes_minutes_before: 60,
-  /** Cuánto dura una oferta de lista de espera sin auto-reserva. */
-  waitlist_offer_minutes: 120,
-  /** El no-show consume el crédito. */
-  no_show_forfeits_credit: true,
-  /** Cuántos días hacia adelante se materializan clases. */
-  booking_horizon_days: 60,
-  /** Minutos que se sostiene el cupo mientras se paga una clase suelta. */
-  order_hold_minutes: 30,
+  businessKnowledge: { infoGeneral: "", preguntasFrecuentes: [] as { pregunta: string; respuesta: string }[] },
 } as const;
 
 export type SettingsShape = typeof DEFAULT_SETTINGS;
@@ -27,3 +18,10 @@ export const STUDIO = {
   instagram: "@pinkpilates",
   address: "Angamos 326, Reñaca / Viña del Mar",
 } as const;
+
+/**
+ * PLACEHOLDER — falta el link real de reservas/app de CrossHero de Javiera.
+ * Todos los CTA de "reservar"/"comprar" del sitio apuntan acá. Reemplazar en
+ * cuanto lo tengamos; hasta entonces esta URL no lleva a ningún lado real.
+ */
+export const CROSSHERO_URL = "https://crosshero.com/PENDIENTE-link-de-pink-pilates";

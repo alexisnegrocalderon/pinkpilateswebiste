@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { SEGMENTO } from "@/lib/format";
-import { useAuth } from "@/lib/auth";
 import { Alerta, Cargando } from "@/components/pp/base";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlanCarousel } from "@/components/planes/PlanCarousel";
@@ -10,20 +9,8 @@ import type { Plan } from "@/components/planes/PlanCard";
 export default function PlanesPublico() {
   const [planes, setPlanes] = useState<Plan[] | null>(null);
   const [segmento, setSegmento] = useState("adult");
-  const [error, setError] = useState<string | null>(null);
-  const { usuario } = useAuth();
 
   useEffect(() => { api.get<Plan[]>("/public/plans").then(setPlanes); }, []);
-
-  async function comprar(p: Plan) {
-    if (!usuario) return void (window.location.href = "/ingresar");
-    try {
-      const orden = await api.post<{ orderId: string }>("/orders", { planSlug: p.slug });
-      window.location.href = `/checkout/${orden.orderId}`;
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
 
   if (!planes) return <div className="pp-app"><Cargando que="los planes" /></div>;
 
@@ -37,17 +24,13 @@ export default function PlanesPublico() {
           <h1 className="text-[36px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[48px]">
             Planes y precios
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">Un crédito equivale a una clase.</p>
+          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">
+            Un crédito equivale a una clase. Reserva y paga desde CrossHero.
+          </p>
         </div>
       </section>
 
       <main className="mx-auto max-w-6xl px-5 pb-24">
-        {error && (
-          <div className="mx-auto mb-6 max-w-xl">
-            <Alerta tono="mal">{error}</Alerta>
-          </div>
-        )}
-
         <Tabs value={segmento} onValueChange={setSegmento}>
           <TabsList className="mx-auto mb-8 flex h-auto w-fit max-w-full gap-2 overflow-x-auto rounded-full bg-transparent p-0">
             {segmentos.map((s) => (
@@ -79,7 +62,7 @@ export default function PlanesPublico() {
                 </div>
               )}
 
-              <PlanCarousel plans={planes.filter((p) => p.segment === s)} loggedIn={!!usuario} onComprar={comprar} />
+              <PlanCarousel plans={planes.filter((p) => p.segment === s)} />
             </TabsContent>
           ))}
         </Tabs>

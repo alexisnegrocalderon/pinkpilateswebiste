@@ -1,29 +1,23 @@
 "use client";
 
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 import { Protegido } from "@/lib/auth";
 import NotFound from "@/pages/NotFound";
 
-import Resumen from "@/pages/panel/Resumen";
-import Agenda from "@/pages/panel/Agenda";
-import Horarios from "@/pages/panel/Horarios";
-import Alumnas from "@/pages/panel/Alumnas";
-import AlumnaDetalle from "@/pages/panel/AlumnaDetalle";
 import PanelPlanes from "@/pages/panel/Planes";
-import Pagos from "@/pages/panel/Pagos";
-import Emails from "@/pages/panel/Emails";
-import Reportes from "@/pages/panel/Reportes";
-import Config from "@/pages/panel/Config";
-import Auditoria from "@/pages/panel/Auditoria";
+import Clases from "@/pages/panel/Clases";
+import Leads from "@/pages/panel/Leads";
+import Conocimiento from "@/pages/panel/Conocimiento";
 
 /**
- * El panel entero (11 pantallas) se porta sin tocarlo: sigue siendo una app
- * client-side ruteada por wouter, igual que en el Vite/App.tsx original —
- * sólo cambió quién decide que "/admin/*" cae acá (antes wouter mismo,
- * ahora el App Router de Next). No necesita SEO ni SSR.
+ * El sitio pasó a ser 100% marketing/SEO — Javiera gestiona reservas,
+ * clases y pagos desde CrossHero. Lo que queda acá es sólo contenido:
+ * precios que se muestran, descripciones de clase, contactos y la base de
+ * conocimiento para el futuro agente de WhatsApp. Se sigue rutando con
+ * wouter puertas adentro, igual que el resto del panel portado.
  */
 const soloEstudio = (Componente: React.ComponentType) => () => (
-  <Protegido roles={["owner", "instructor"]}>
+  <Protegido roles={["owner"]}>
     <Componente />
   </Protegido>
 );
@@ -31,17 +25,13 @@ const soloEstudio = (Componente: React.ComponentType) => () => (
 function AdminCatchAll() {
   return (
     <Switch>
-      <Route path="/admin" component={soloEstudio(Resumen)} />
-      <Route path="/admin/agenda" component={soloEstudio(Agenda)} />
-      <Route path="/admin/horarios" component={soloEstudio(Horarios)} />
-      <Route path="/admin/alumnas" component={soloEstudio(Alumnas)} />
-      <Route path="/admin/alumnas/:id" component={soloEstudio(AlumnaDetalle)} />
+      <Route path="/admin">
+        <Redirect to="/admin/planes" />
+      </Route>
       <Route path="/admin/planes" component={soloEstudio(PanelPlanes)} />
-      <Route path="/admin/pagos" component={soloEstudio(Pagos)} />
-      <Route path="/admin/emails" component={soloEstudio(Emails)} />
-      <Route path="/admin/reportes" component={soloEstudio(Reportes)} />
-      <Route path="/admin/config" component={soloEstudio(Config)} />
-      <Route path="/admin/auditoria" component={soloEstudio(Auditoria)} />
+      <Route path="/admin/clases" component={soloEstudio(Clases)} />
+      <Route path="/admin/contactos" component={soloEstudio(Leads)} />
+      <Route path="/admin/conocimiento" component={soloEstudio(Conocimiento)} />
       <Route component={NotFound} />
     </Switch>
   );

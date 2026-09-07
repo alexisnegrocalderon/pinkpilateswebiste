@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/mi", "/checkout", "/pagar", "/pago", "/ingresar", "/crear-cuenta"],
+        disallow: ["/admin", "/ingresar"],
       },
     ],
     sitemap: "https://pinkpilates.cl/sitemap.xml",

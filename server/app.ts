@@ -11,10 +11,6 @@ export function buildApp(): Express {
   const app = express();
   app.set("trust proxy", true);
 
-  // Los webhooks necesitan el cuerpo crudo para verificar la firma HMAC.
-  // express.json() lo destruiría, así que va montado ANTES y sólo en esa ruta.
-  app.use("/api/webhooks", express.raw({ type: "*/*", limit: "1mb" }));
-
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false }));
 
