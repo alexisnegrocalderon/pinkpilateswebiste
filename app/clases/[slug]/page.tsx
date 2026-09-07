@@ -51,7 +51,7 @@ export default async function ClaseDetalle({ params }: { params: Promise<{ slug:
           <span className="mt-6 block w-fit rounded-full bg-[#FFDBDB] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#B4285A]">
             {DISCIPLINA[c.discipline] ?? c.discipline}
           </span>
-          <h1 className="mt-4 text-[32px] font-semibold tracking-tight text-neutral-900 sm:text-[40px]">{c.name}</h1>
+          <h1 className="mt-4 text-[36px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[48px]">{c.name}</h1>
           {c.shortDescription && <p className="mt-3 text-[16px] text-neutral-600">{c.shortDescription}</p>}
 
           <div className="mt-8 flex flex-wrap gap-6 border-y border-neutral-200 py-5 text-[14px] text-neutral-700">

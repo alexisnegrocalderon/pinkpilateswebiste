@@ -35,6 +35,11 @@ export default function Planes() {
     cargar();
   }
 
+  async function alternarDestacado(p: Plan) {
+    await api.patch(`/admin/plans/${p.id}`, { badge: p.badge ? null : "Más popular" });
+    cargar();
+  }
+
   if (!planes) return <AdminShell titulo="Planes y precios"><Cargando que="los planes" /></AdminShell>;
 
   const grupos = ["adult", "student", "valle", "special"];
@@ -74,7 +79,7 @@ export default function Planes() {
                       <tr>
                         <th>Plan</th><th>Periodo</th><th className="num">Créditos</th>
                         <th className="num">Precio</th><th className="num">Por clase</th>
-                        <th className="num">Vendidos</th><th>En el sitio</th><th></th>
+                        <th className="num">Vendidos</th><th>En el sitio</th><th>Destacado</th><th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -92,6 +97,11 @@ export default function Planes() {
                           <td>
                             <button className="pp-chip" aria-pressed={p.isPublic} onClick={() => void alternarPublico(p)}>
                               {p.isPublic ? "Visible" : "Oculto"}
+                            </button>
+                          </td>
+                          <td>
+                            <button className="pp-chip" aria-pressed={!!p.badge} onClick={() => void alternarDestacado(p)}>
+                              {p.badge ? "Destacado" : "Marcar"}
                             </button>
                           </td>
                           <td>

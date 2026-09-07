@@ -10,9 +10,9 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main>
+      <main className="bg-[#FFF5F5]">
         {/* Hero — el letrero de neón real del estudio */}
-        <section className="relative flex h-[88vh] min-h-[560px] items-end overflow-hidden bg-neutral-900">
+        <section className="relative flex h-[92vh] min-h-[600px] items-end overflow-hidden bg-neutral-900">
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src="/assets/pink/studio/heart-pan.mp4"
@@ -22,25 +22,33 @@ export default function Home() {
             loop
             playsInline
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/45" />
+          <div
+            aria-hidden
+            className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FF5C89]/70 blur-2xl sm:h-96 sm:w-96"
+          />
 
           <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-32">
-            <h1 className="max-w-2xl text-[40px] font-semibold leading-[1.08] tracking-tight text-white sm:text-[56px]">
-              Pilates Reformer en Reñaca
+            <span className="inline-block rounded-full bg-[#FF5C89] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-white">
+              Estudio boutique · Reñaca
+            </span>
+            <h1 className="mt-5 max-w-3xl text-[44px] uppercase leading-[0.95] tracking-tight text-white [font-family:var(--font-display)] sm:text-[76px]">
+              Pilates Reformer,{" "}
+              <span className="text-[#FFB4C8]">a tu ritmo</span>
             </h1>
-            <p className="mt-4 max-w-md text-[16px] leading-relaxed text-white/85">
+            <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/85">
               Estudio boutique con clases reducidas y equipamiento profesional. Reserva por créditos, a tu ritmo.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/reservar"
-                className="rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white transition-transform hover:scale-[1.03]"
+                className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.03]"
               >
                 Reservar clase de prueba
               </Link>
               <Link
                 href="/planes"
-                className="rounded-full border border-white/50 px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-white/10"
+                className="rounded-full border border-white/50 px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-white/10"
               >
                 Ver planes
               </Link>
@@ -49,10 +57,10 @@ export default function Home() {
         </section>
 
         {/* Franja de hechos */}
-        <section className="bg-[#FFDBDB]">
+        <section className="bg-[#FF5C89]">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 py-8 text-center sm:grid-cols-4">
             {HECHOS.map((h) => (
-              <div key={h} className="text-[13.5px] font-semibold text-[#B4285A]">
+              <div key={h} className="text-[13.5px] font-semibold uppercase tracking-wide text-white">
                 {h}
               </div>
             ))}
@@ -60,25 +68,33 @@ export default function Home() {
         </section>
 
         {/* Estudio + equipamiento */}
-        <section id="clases" className="mx-auto max-w-6xl bg-white px-5 py-24">
-          <div className="grid gap-12 md:grid-cols-2 md:items-center md:gap-16">
-            <div className="overflow-hidden rounded-2xl bg-neutral-900">
-              <video
-                className="h-full w-full object-cover"
-                src="/assets/pink/studio/reformers-tracking.mp4"
-                poster="/assets/pink/studio/reformers-tracking-poster.jpg"
-                autoPlay
-                muted
-                loop
-                playsInline
+        <section id="clases" className="mx-auto max-w-6xl px-5 py-28">
+          <div className="grid gap-14 md:grid-cols-2 md:items-center md:gap-16">
+            <div className="relative">
+              <div
+                aria-hidden
+                className="absolute -left-8 -top-8 hidden h-40 w-40 rounded-full bg-[#FDA8BF] sm:block"
               />
+              <div className="relative overflow-hidden rounded-full aspect-square bg-neutral-900 shadow-xl ring-8 ring-white">
+                <video
+                  className="h-full w-full object-cover"
+                  src="/assets/pink/studio/reformers-tracking.mp4"
+                  poster="/assets/pink/studio/reformers-tracking-poster.jpg"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              </div>
             </div>
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-[#FF5C89]">El estudio</div>
-              <h2 className="mt-3 text-[28px] font-semibold leading-tight text-neutral-900 sm:text-[34px]">
-                Equipamiento real, clases pequeñas
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#FF5C89]">El estudio</div>
+              <h2 className="mt-3 text-[34px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[44px]">
+                Equipamiento real,
+                <br />
+                clases pequeñas
               </h2>
-              <p className="mt-4 text-[15px] leading-relaxed text-neutral-600">
+              <p className="mt-5 text-[15px] leading-relaxed text-neutral-600">
                 Trabajamos con reformer, wall unit, chair, ladder barrel, spine corrector y mat — el equipamiento
                 completo del método Pilates, en un espacio pensado para pocas personas por clase.
               </p>
@@ -92,13 +108,13 @@ export default function Home() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/clases"
-                  className="inline-block rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white hover:bg-[#e14c76]"
+                  className="inline-block rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold uppercase tracking-wide text-white hover:bg-[#e14c76]"
                 >
                   Ver tipos de clase
                 </Link>
                 <Link
                   href="/planes"
-                  className="inline-block rounded-full border border-neutral-300 px-6 py-3 text-[14px] font-semibold text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
+                  className="inline-block rounded-full border border-neutral-300 px-6 py-3 text-[14px] font-semibold uppercase tracking-wide text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
                 >
                   Ver planes y precios
                 </Link>
@@ -121,21 +137,23 @@ export default function Home() {
         </section>
 
         {/* CTA final */}
-        <section className="bg-[#FDC3D1]/40 px-5 py-24 text-center">
-          <h2 className="text-[26px] font-semibold text-neutral-900 sm:text-[32px]">¿Lista para tu primera clase?</h2>
-          <p className="mx-auto mt-3 max-w-md text-[15px] text-neutral-600">
+        <section className="px-5 py-28 text-center">
+          <h2 className="text-[30px] uppercase leading-[0.98] text-neutral-900 [font-family:var(--font-display)] sm:text-[40px]">
+            ¿Lista para tu primera clase?
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-[15px] text-neutral-600">
             Reserva tu clase de prueba o revisa los planes y elige el que mejor calce contigo.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
               href="/reservar"
-              className="rounded-full bg-[#FF5C89] px-6 py-3 text-[14px] font-semibold text-white hover:bg-[#e14c76]"
+              className="rounded-full bg-[#FF5C89] px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white hover:bg-[#e14c76]"
             >
               Reservar clase
             </Link>
             <Link
               href="/planes"
-              className="rounded-full border border-neutral-400 bg-white px-6 py-3 text-[14px] font-semibold text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
+              className="rounded-full border border-neutral-400 bg-white px-7 py-3.5 text-[14px] font-semibold uppercase tracking-wide text-neutral-800 hover:border-[#FF5C89] hover:text-[#FF5C89]"
             >
               Ver planes
             </Link>

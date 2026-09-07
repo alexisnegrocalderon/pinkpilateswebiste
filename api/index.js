@@ -1380,7 +1380,7 @@ var wrap = (fn) => (req, res, next) => {
 
 // server/routes/index.ts
 init_client();
-import { sql as sql17 } from "drizzle-orm";
+import { sql as sql18 } from "drizzle-orm";
 
 // server/middleware/session.ts
 init_schema();
@@ -1501,6 +1501,28 @@ var resetPasswordSchema = z2.object({
 // server/routes/auth.routes.ts
 init_schema();
 init_client();
+
+// server/middleware/rateLimit.ts
+init_errors();
+import rateLimit from "express-rate-limit";
+var respondRateLimited = (_req, res) => {
+  const err = new DomainError("RATE_LIMITED", "Demasiados intentos. Espera un minuto e int\xE9ntalo de nuevo.");
+  res.status(err.status).json({ error: { code: err.code, message: err.message } });
+};
+var authRateLimit = rateLimit({
+  windowMs: 6e4,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: respondRateLimited
+});
+var strictAuthRateLimit = rateLimit({
+  windowMs: 6e4,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: respondRateLimited
+});
 
 // server/middleware/requireRole.ts
 init_errors();
@@ -1654,6 +1676,7 @@ var publicUser = (u) => ({
 });
 authRouter.post(
   "/register",
+  authRateLimit,
   wrap(async (req, res) => {
     const input = registerSchema.parse(req.body);
     const { user, sessionId } = await register(input, req.ip, req.headers["user-agent"]);
@@ -1664,6 +1687,7 @@ authRouter.post(
 );
 authRouter.post(
   "/login",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { email, password } = loginSchema.parse(req.body);
     const { user, sessionId } = await login(email, password, req.ip, req.headers["user-agent"]);
@@ -1734,6 +1758,7 @@ authRouter.post(
 );
 authRouter.post(
   "/password/forgot",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { email } = forgotPasswordSchema.parse(req.body);
     const result = await createPasswordResetToken(email);
@@ -1745,6 +1770,7 @@ authRouter.post(
 );
 authRouter.post(
   "/password/reset",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { token, newPassword } = resetPasswordSchema.parse(req.body);
     await resetPassword(token, newPassword);
@@ -3584,15 +3610,18 @@ adminRouter.post("/campaigns", owner, wrap(async (req, res) => {
             ${input.enviar ? "sent" : "draft"}::campaign_status, ${destinatarias.length},
             ${req.user.id}::uuid, ${input.enviar ? sql16`now()` : sql16`NULL`})
     RETURNING id`);
-  if (input.enviar) {
-    for (const d of destinatarias) {
-      await db.execute(sql16`
-        INSERT INTO email_outbox (to_email, to_user_id, subject, html_body, campaign_id, dedupe_key)
-        VALUES (${d.email}, ${d.id}::uuid, ${input.subject},
-                ${input.htmlBody.replace(/\{\{\s*nombre\s*\}\}/g, d.firstName)},
-                ${c.id}::uuid, ${`campaign:${c.id}:${d.id}`})
-        ON CONFLICT (dedupe_key) DO NOTHING`);
-    }
+  if (input.enviar && destinatarias.length) {
+    const toEmail = destinatarias.map((d) => d.email);
+    const toUserId = destinatarias.map((d) => d.id);
+    const htmlBody = destinatarias.map((d) => input.htmlBody.replace(/\{\{\s*nombre\s*\}\}/g, d.firstName));
+    const dedupeKey = destinatarias.map((d) => `campaign:${c.id}:${d.id}`);
+    await db.execute(sql16`
+      INSERT INTO email_outbox (to_email, to_user_id, subject, html_body, campaign_id, dedupe_key)
+      SELECT e, u::uuid, ${input.subject}, h, ${c.id}::uuid, k
+        FROM unnest(${sql16.param(toEmail)}::text[], ${sql16.param(toUserId)}::text[],
+                     ${sql16.param(htmlBody)}::text[], ${sql16.param(dedupeKey)}::text[])
+             AS t(e, u, h, k)
+      ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING`);
   }
   res.status(201).json({ data: { campaignId: c.id, destinatarias: destinatarias.length, enviada: input.enviar } });
 }));
@@ -3640,6 +3669,89 @@ adminRouter.get("/leads", owner, wrap(async (_req, res) => {
   res.json({ data: rows });
 }));
 
+// server/routes/jobs.routes.ts
+init_errors();
+init_env();
+import { Router as Router6 } from "express";
+
+// server/jobs/daily.job.ts
+init_client();
+import { sql as sql17 } from "drizzle-orm";
+var NO_SHOW_GRACE_HOURS = 2;
+async function runDailyJob() {
+  const sessionsCreated = await materializeSessions();
+  const sessionsCompleted = await completeEndedSessions();
+  const noShowsMarked = await markNoShows();
+  const membershipsExpired = await expireMemberships();
+  const membershipsDepleted = await depleteMemberships();
+  return { sessionsCreated, sessionsCompleted, noShowsMarked, membershipsExpired, membershipsDepleted };
+}
+async function completeEndedSessions() {
+  const result = await db.execute(sql17`
+    UPDATE class_sessions
+       SET status = 'completed', updated_at = now()
+     WHERE status = 'scheduled' AND ends_at < now()
+    RETURNING id
+  `);
+  return rowCount(result);
+}
+async function markNoShows() {
+  const result = await db.execute(sql17`
+    UPDATE reservations r
+       SET status = 'no_show', updated_at = now()
+      FROM class_sessions s
+     WHERE r.session_id = s.id
+       AND r.status = 'booked'
+       AND s.ends_at < now() - (${NO_SHOW_GRACE_HOURS}::int || ' hours')::interval
+    RETURNING r.id
+  `);
+  return rowCount(result);
+}
+async function expireMemberships() {
+  const result = await db.execute(sql17`
+    UPDATE memberships
+       SET status = 'expired', updated_at = now()
+     WHERE status = 'active'
+       AND ends_on < (now() AT TIME ZONE 'America/Santiago')::date
+    RETURNING id
+  `);
+  return rowCount(result);
+}
+async function depleteMemberships() {
+  const result = await db.execute(sql17`
+    UPDATE memberships
+       SET status = 'depleted', depleted_at = now(), updated_at = now()
+     WHERE status = 'active'
+       AND credits_used >= credits_total
+    RETURNING id
+  `);
+  return rowCount(result);
+}
+function rowCount(result) {
+  const rows = Array.isArray(result) ? result : result.rows;
+  return rows.length;
+}
+
+// server/routes/jobs.routes.ts
+var jobsRouter = Router6();
+function isAuthorized(req) {
+  const secret = env().CRON_SECRET;
+  const auth = req.headers.authorization;
+  if (typeof auth === "string" && auth === `Bearer ${secret}`) return true;
+  const header = req.headers["x-cron-secret"];
+  return typeof header === "string" && header === secret;
+}
+jobsRouter.post(
+  "/run",
+  wrap(async (req, res) => {
+    if (!isAuthorized(req)) fail("UNAUTHENTICATED", "Secreto de cron inv\xE1lido o ausente.");
+    const job = req.query.job ?? "daily";
+    if (job !== "daily") fail("VALIDATION", `Job desconocido: ${job}`);
+    const result = await runDailyJob();
+    res.json({ data: { job, ...result } });
+  })
+);
+
 // server/routes/index.ts
 function registerRoutes(app2) {
   app2.use(loadSession);
@@ -3648,7 +3760,7 @@ function registerRoutes(app2) {
     wrap(async (_req, res) => {
       const started = Date.now();
       const result = await db.execute(
-        sql17`SELECT now() AS now, (now() AT TIME ZONE 'America/Santiago')::date AS today`
+        sql18`SELECT now() AS now, (now() AT TIME ZONE 'America/Santiago')::date AS today`
       );
       const rows = Array.isArray(result) ? result : result.rows;
       res.json({
@@ -3668,6 +3780,7 @@ function registerRoutes(app2) {
   app2.use("/api", paymentsRouter);
   app2.use("/api/webhooks", webhooksRouter);
   app2.use("/api/admin", adminRouter);
+  app2.use("/api/jobs", jobsRouter);
 }
 
 // server/app.ts

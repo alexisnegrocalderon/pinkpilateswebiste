@@ -18,24 +18,24 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => setAbierto(false)}>
           <Image src="/assets/pink/pink-pilates-isotipo.png" alt="" width={32} height={32} priority className="h-8 w-8 object-contain" />
-          <span className="text-[15px] font-semibold tracking-tight text-neutral-900">Pink Pilates</span>
+          <span className="text-[16px] uppercase tracking-tight text-neutral-900 [font-family:var(--font-display)]">Pink Pilates</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="text-[14px] font-medium text-neutral-600 transition-colors hover:text-neutral-900">
+            <Link key={n.href} href={n.href} className="text-[13.5px] font-semibold uppercase tracking-wide text-neutral-600 transition-colors hover:text-[#FF5C89]">
               {n.label}
             </Link>
           ))}
           <Link
             href="/ingresar"
-            className="text-[14px] font-medium text-neutral-500 transition-colors hover:text-neutral-900"
+            className="text-[13.5px] font-semibold uppercase tracking-wide text-neutral-500 transition-colors hover:text-[#FF5C89]"
           >
             Ingresar
           </Link>
           <Link
             href="/reservar"
-            className="rounded-full bg-[#FF5C89] px-5 py-2 text-[13.5px] font-semibold text-white transition-colors hover:bg-[#e14c76]"
+            className="rounded-full bg-[#FF5C89] px-5 py-2 text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#e14c76]"
           >
             Reservar clase
           </Link>
@@ -61,7 +61,7 @@ export function SiteHeader() {
               key={n.href}
               href={n.href}
               onClick={() => setAbierto(false)}
-              className="rounded-lg px-3 py-2.5 text-[15px] font-medium text-neutral-700 hover:bg-[#FFDBDB]"
+              className="rounded-lg px-3 py-2.5 text-[15px] font-semibold uppercase tracking-wide text-neutral-700 hover:bg-[#FFDBDB]"
             >
               {n.label}
             </Link>
@@ -69,7 +69,7 @@ export function SiteHeader() {
           <Link
             href="/reservar"
             onClick={() => setAbierto(false)}
-            className="mt-1 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[14px] font-semibold text-white"
+            className="mt-1 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[14px] font-semibold uppercase tracking-wide text-white"
           >
             Reservar clase
           </Link>
