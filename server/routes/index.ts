@@ -8,6 +8,7 @@ import { publicRouter } from "./public.routes";
 import { studentRouter } from "./student.routes";
 import { paymentsRouter, webhooksRouter } from "./payments.routes";
 import { adminRouter } from "./admin.routes";
+import { jobsRouter } from "./jobs.routes";
 
 export function registerRoutes(app: Express) {
   app.use(loadSession);
@@ -42,4 +43,5 @@ export function registerRoutes(app: Express) {
   app.use("/api", paymentsRouter);
   app.use("/api/webhooks", webhooksRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/jobs", jobsRouter);
 }

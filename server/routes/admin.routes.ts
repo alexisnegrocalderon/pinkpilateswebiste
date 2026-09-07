@@ -755,16 +755,22 @@ adminRouter.post("/campaigns", owner, wrap(async (req, res) => {
             ${req.user!.id}::uuid, ${input.enviar ? sql`now()` : sql`NULL`})
     RETURNING id`);
 
-  if (input.enviar) {
-    // Se encola, no se envía: el envío real lo hace el job del outbox.
-    for (const d of destinatarias) {
-      await db.execute(sql`
-        INSERT INTO email_outbox (to_email, to_user_id, subject, html_body, campaign_id, dedupe_key)
-        VALUES (${d.email}, ${d.id}::uuid, ${input.subject},
-                ${input.htmlBody.replace(/\{\{\s*nombre\s*\}\}/g, d.firstName)},
-                ${c.id}::uuid, ${`campaign:${c.id}:${d.id}`})
-        ON CONFLICT (dedupe_key) DO NOTHING`);
-    }
+  if (input.enviar && destinatarias.length) {
+    // Encolado en un solo INSERT ... unnest, no un round-trip por destinataria:
+    // con audiencias grandes un loop secuencial no termina dentro del maxDuration
+    // de la función. Se encola, no se envía: el envío real lo hace el job del outbox.
+    const toEmail = destinatarias.map((d) => d.email);
+    const toUserId = destinatarias.map((d) => d.id);
+    const htmlBody = destinatarias.map((d) => input.htmlBody.replace(/\{\{\s*nombre\s*\}\}/g, d.firstName));
+    const dedupeKey = destinatarias.map((d) => `campaign:${c.id}:${d.id}`);
+
+    await db.execute(sql`
+      INSERT INTO email_outbox (to_email, to_user_id, subject, html_body, campaign_id, dedupe_key)
+      SELECT e, u::uuid, ${input.subject}, h, ${c.id}::uuid, k
+        FROM unnest(${sql.param(toEmail)}::text[], ${sql.param(toUserId)}::text[],
+                     ${sql.param(htmlBody)}::text[], ${sql.param(dedupeKey)}::text[])
+             AS t(e, u, h, k)
+      ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING`);
   }
 
   res.status(201).json({ data: { campaignId: c.id, destinatarias: destinatarias.length, enviada: input.enviar } });

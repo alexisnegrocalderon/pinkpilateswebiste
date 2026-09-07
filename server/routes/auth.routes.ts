@@ -11,6 +11,7 @@ import {
 import { studentProfiles, users } from "@shared/schema";
 import { db } from "../db/client";
 import { wrap } from "../middleware/errorHandler";
+import { authRateLimit, strictAuthRateLimit } from "../middleware/rateLimit";
 import { requireAuth } from "../middleware/requireRole";
 import { clearSessionCookie, setSessionCookie } from "../middleware/session";
 import * as auth from "../services/auth.service";
@@ -28,6 +29,7 @@ const publicUser = (u: { id: string; email: string; role: string; firstName: str
 
 authRouter.post(
   "/register",
+  authRateLimit,
   wrap(async (req, res) => {
     const input = registerSchema.parse(req.body);
     const { user, sessionId } = await auth.register(input, req.ip, req.headers["user-agent"]);
@@ -39,6 +41,7 @@ authRouter.post(
 
 authRouter.post(
   "/login",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { email, password } = loginSchema.parse(req.body);
     const { user, sessionId } = await auth.login(email, password, req.ip, req.headers["user-agent"]);
@@ -123,6 +126,7 @@ authRouter.post(
 
 authRouter.post(
   "/password/forgot",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { email } = forgotPasswordSchema.parse(req.body);
     const result = await auth.createPasswordResetToken(email);
@@ -136,6 +140,7 @@ authRouter.post(
 
 authRouter.post(
   "/password/reset",
+  strictAuthRateLimit,
   wrap(async (req, res) => {
     const { token, newPassword } = resetPasswordSchema.parse(req.body);
     await auth.resetPassword(token, newPassword);
