@@ -971,6 +971,12 @@ ${detail}`);
   cached = parsed.data;
   return cached;
 }
+function appUrl() {
+  const e = env();
+  if (e.APP_URL) return e.APP_URL.replace(/\/$/, "");
+  if (e.VERCEL_URL) return `https://${e.VERCEL_URL}`;
+  return `http://localhost:${e.PORT}`;
+}
 var schema, cached, isProd;
 var init_env = __esm({
   "server/env.ts"() {
@@ -981,7 +987,11 @@ var init_env = __esm({
       APP_URL: z.string().url().optional(),
       NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
       PORT: z.coerce.number().default(3001),
-      VERCEL_URL: z.string().optional()
+      VERCEL_URL: z.string().optional(),
+      /** Pasarela de pago activa. "mock" hasta que Javiera defina la real. */
+      PAYMENTS_PROVIDER: z.enum(["mock", "mercadopago", "flow", "transbank"]).default("mock"),
+      /** Firma HMAC del pagador simulado. Cambiar en producción cuando se configure. */
+      MOCK_WEBHOOK_SECRET: z.string().min(8).default("dev-mock-webhook-secret")
     });
     cached = null;
     isProd = () => env().NODE_ENV === "production";
@@ -1016,12 +1026,20 @@ var init_client = __esm({
 });
 
 // shared/domain/policy.ts
-var DEFAULT_SETTINGS;
+var DEFAULT_SETTINGS, STUDIO;
 var init_policy = __esm({
   "shared/domain/policy.ts"() {
     "use strict";
     DEFAULT_SETTINGS = {
       businessKnowledge: { infoGeneral: "", preguntasFrecuentes: [] }
+    };
+    STUDIO = {
+      name: "Pink Pilates",
+      tagline: "Pink, Unleashed",
+      email: "info@pinkpilates.cl",
+      phone: "+56999471471",
+      instagram: "@pinkpilates",
+      address: "Angamos 326, Re\xF1aca / Vi\xF1a del Mar"
     };
   }
 });
@@ -1159,7 +1177,7 @@ var wrap = (fn) => (req, res, next) => {
 
 // server/routes/index.ts
 init_client();
-import { sql as sql9 } from "drizzle-orm";
+import { sql as sql11 } from "drizzle-orm";
 
 // server/middleware/session.ts
 init_schema();
@@ -1301,6 +1319,13 @@ var strictAuthRateLimit = rateLimit({
   legacyHeaders: false,
   handler: respondRateLimited
 });
+var checkoutRateLimit = rateLimit({
+  windowMs: 6e4,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: respondRateLimited
+});
 
 // server/middleware/requireRole.ts
 function requireAuth(req, _res, next) {
@@ -1329,6 +1354,29 @@ var verifyPassword = (plain, hash) => bcrypt.compare(plain, hash);
 // server/lib/tokens.ts
 import { createHash, randomBytes, timingSafeEqual, createHmac } from "crypto";
 var randomToken = (bytes = 32) => randomBytes(bytes).toString("base64url");
+var hmac = (secret, payload) => createHmac("sha256", secret).update(payload).digest("hex");
+function safeEqual(a, b) {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ba.length !== bb.length) return false;
+  return timingSafeEqual(ba, bb);
+}
+function signPayload(secret, data, ttlSeconds) {
+  const body = Buffer.from(JSON.stringify({ ...data, exp: Date.now() + ttlSeconds * 1e3 })).toString("base64url");
+  return `${body}.${hmac(secret, body)}`;
+}
+function verifyPayload(secret, token) {
+  const [body, sig] = token.split(".");
+  if (!body || !sig) return null;
+  if (!safeEqual(sig, hmac(secret, body))) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(body, "base64url").toString());
+    if (typeof parsed.exp !== "number" || parsed.exp < Date.now()) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
 
 // server/services/auth.service.ts
 async function login(email, password, ip, userAgent) {
@@ -1421,21 +1469,332 @@ authRouter.post(
 // server/routes/public.routes.ts
 init_schema();
 init_client();
+init_env();
 import { Router as Router2 } from "express";
-import { and as and3, asc, eq as eq4 } from "drizzle-orm";
+import { and as and3, asc, eq as eq5 } from "drizzle-orm";
 import { z as z3 } from "zod";
+
+// server/payments/index.ts
+init_env();
+
+// server/payments/mock.provider.ts
+init_env();
+import { randomUUID } from "crypto";
+var MockProvider = class {
+  id = "mock";
+  displayName = "Pasarela de prueba";
+  async createCheckout(req) {
+    const providerPaymentId = `mock_${randomUUID()}`;
+    const token = signPayload(
+      env().MOCK_WEBHOOK_SECRET,
+      { orderId: req.orderId, providerPaymentId, amountClp: req.amountClp, orderNumber: req.orderNumber },
+      30 * 60
+    );
+    return {
+      providerPaymentId,
+      redirectUrl: `/pagar/mock/${encodeURIComponent(token)}`,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 30 * 6e4),
+      raw: { simulated: true, orderNumber: req.orderNumber }
+    };
+  }
+  /** Verifica la firma de verdad: si no calza, la ruta responde 401. */
+  async parseWebhook(req) {
+    const signature = String(req.headers["x-mock-signature"] ?? "");
+    const body = req.rawBody.toString("utf8");
+    const expected = hmac(env().MOCK_WEBHOOK_SECRET, body);
+    const signatureValid = Boolean(signature) && safeEqual(signature, expected);
+    const payload = JSON.parse(body);
+    return {
+      eventId: payload.event_id,
+      type: payload.type,
+      providerPaymentId: payload.payment_id,
+      orderId: payload.order_id,
+      amountClp: payload.amount,
+      occurredAt: new Date(payload.ts),
+      signatureValid,
+      raw: payload
+    };
+  }
+  async getPayment(providerPaymentId) {
+    return { providerPaymentId, status: "pending", amountClp: 0, raw: {} };
+  }
+  async refund(req) {
+    return { providerRefundId: `mockref_${randomUUID()}`, status: "done", raw: { ...req } };
+  }
+  /** Sólo del mock: valida el token del pagador simulado. */
+  readToken(token) {
+    return verifyPayload(
+      env().MOCK_WEBHOOK_SECRET,
+      token
+    );
+  }
+};
+
+// server/payments/index.ts
+var mock = new MockProvider();
+function getPaymentProvider(id) {
+  const chosen = id ?? env().PAYMENTS_PROVIDER;
+  switch (chosen) {
+    case "mock":
+      return mock;
+    case "mercadopago":
+    case "flow":
+    case "transbank":
+      throw new Error(
+        `La pasarela "${chosen}" a\xFAn no est\xE1 implementada. Crear server/payments/${chosen}.provider.ts implementando PaymentProvider y registrarlo aqu\xED.`
+      );
+    default:
+      return mock;
+  }
+}
+
+// server/services/order.service.ts
+import { sql as sql8 } from "drizzle-orm";
+init_client();
+
+// server/lib/clp.ts
+function formatClp(amount) {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+// server/services/email.service.ts
+init_schema();
+init_policy();
+init_client();
+import { eq as eq4 } from "drizzle-orm";
+function render(body, vars) {
+  return body.replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, key) => {
+    const value = vars[key] ?? STUDIO[key];
+    return value === void 0 || value === null ? "" : String(value);
+  });
+}
+async function queue(params) {
+  try {
+    await db.insert(emailOutbox).values({
+      toEmail: params.toEmail,
+      toUserId: params.toUserId ?? null,
+      subject: params.subject,
+      htmlBody: params.htmlBody,
+      textBody: params.textBody ?? null,
+      templateKey: params.templateKey ?? null,
+      campaignId: params.campaignId ?? null,
+      dedupeKey: params.dedupeKey ?? null,
+      scheduledFor: params.scheduledFor ?? /* @__PURE__ */ new Date()
+    }).onConflictDoNothing();
+  } catch (err) {
+    console.error("[email] no se pudo encolar", err);
+  }
+}
+async function queueTemplate(key, toUserId, toEmail, vars, opts = {}) {
+  const [tpl] = await db.select().from(emailTemplates).where(eq4(emailTemplates.key, key)).limit(1);
+  if (!tpl || !tpl.isActive) return;
+  await queue({
+    toEmail,
+    toUserId,
+    subject: render(tpl.subject, vars),
+    htmlBody: render(tpl.htmlBody, vars),
+    textBody: tpl.textBody ? render(tpl.textBody, vars) : void 0,
+    templateKey: key,
+    dedupeKey: opts.dedupeKey,
+    scheduledFor: opts.scheduledFor
+  });
+}
+
+// server/services/order.service.ts
+var rowsOf = (r) => Array.isArray(r) ? r : r.rows;
+async function nextOrderNumber() {
+  const [row] = rowsOf(await db.execute(sql8`SELECT nextval('order_number_seq')::int AS n`));
+  return `PP-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(row.n).padStart(6, "0")}`;
+}
+async function upsertBuyer(buyer) {
+  const [existing] = rowsOf(
+    await db.execute(sql8`SELECT id FROM users WHERE email = ${buyer.email}`)
+  );
+  if (existing) return existing.id;
+  const parts = buyer.name.trim().split(/\s+/);
+  const firstName = parts[0] ?? buyer.name;
+  const lastName = parts.slice(1).join(" ") || "-";
+  const [created] = rowsOf(
+    await db.execute(sql8`
+      INSERT INTO users (email, role, first_name, last_name, phone)
+      VALUES (${buyer.email}, 'student', ${firstName}, ${lastName}, ${buyer.phone ?? null})
+      RETURNING id
+    `)
+  );
+  return created.id;
+}
+async function createPlanOrder(buyer, planSlug) {
+  const [plan] = rowsOf(
+    await db.execute(sql8`
+      SELECT id, name, price_clp, credits, validity_days, requires_verification
+        FROM plans WHERE slug = ${planSlug} AND is_active AND is_public
+    `)
+  );
+  if (!plan) fail("NOT_FOUND", "Ese plan no existe o ya no est\xE1 disponible.");
+  const studentId = await upsertBuyer(buyer);
+  const orderNumber = await nextOrderNumber();
+  const [order] = rowsOf(
+    await db.execute(sql8`
+      INSERT INTO orders (order_number, student_id, status, subtotal_clp, discount_clp, total_clp, expires_at)
+      VALUES (${orderNumber}, ${studentId}::uuid, 'awaiting_payment', ${plan.price_clp}, 0, ${plan.price_clp},
+              now() + INTERVAL '30 minutes')
+      RETURNING id
+    `)
+  );
+  await db.execute(sql8`
+    INSERT INTO order_items (order_id, kind, plan_id, description, unit_price_clp, quantity, total_clp)
+    VALUES (${order.id}::uuid, 'plan', ${plan.id}::uuid, ${plan.name}, ${plan.price_clp}, 1, ${plan.price_clp})
+  `);
+  return { orderId: order.id, orderNumber, totalClp: plan.price_clp, description: plan.name, studentId };
+}
+async function fulfillOrder(orderId) {
+  const [order] = rowsOf(
+    await db.execute(sql8`
+      SELECT o.id, o.student_id, o.order_number, o.status::text AS status, o.total_clp, u.email, u.first_name
+        FROM orders o JOIN users u ON u.id = o.student_id
+       WHERE o.id = ${orderId}::uuid
+    `)
+  );
+  if (!order) return false;
+  const [already] = rowsOf(
+    await db.execute(sql8`SELECT count(*)::int AS n FROM memberships WHERE order_id = ${orderId}::uuid`)
+  );
+  if (already.n > 0) return false;
+  const items = rowsOf(
+    await db.execute(sql8`SELECT kind::text AS kind, plan_id FROM order_items WHERE order_id = ${orderId}::uuid`)
+  );
+  for (const item of items) {
+    if (!item.plan_id) continue;
+    const [plan] = rowsOf(
+      await db.execute(sql8`SELECT credits, validity_days, requires_verification, name FROM plans WHERE id = ${item.plan_id}::uuid`)
+    );
+    const status = plan.requires_verification ? "pending_verification" : "active";
+    const [m] = rowsOf(
+      await db.execute(sql8`
+        INSERT INTO memberships (student_id, plan_id, order_id, status, credits_total, credits_used,
+                                 starts_on, ends_on, activated_at, price_paid_clp)
+        VALUES (${order.student_id}::uuid, ${item.plan_id}::uuid, ${orderId}::uuid, ${status}::membership_status,
+                ${plan.credits}, 0,
+                (now() AT TIME ZONE 'America/Santiago')::date,
+                (now() AT TIME ZONE 'America/Santiago')::date + ${plan.validity_days}::int,
+                now(), ${order.total_clp})
+        RETURNING id
+      `)
+    );
+    await db.execute(sql8`
+      INSERT INTO credit_transactions (membership_id, student_id, delta, reason, order_id, note)
+      VALUES (${m.id}::uuid, ${order.student_id}::uuid, ${plan.credits}, 'purchase', ${orderId}::uuid,
+              ${"Compra " + order.order_number})
+    `);
+    await queueTemplate("payment_receipt", order.student_id, order.email, {
+      nombre: order.first_name,
+      orden: order.order_number,
+      plan: plan.name,
+      monto: formatClp(order.total_clp),
+      creditos: plan.credits
+    });
+  }
+  return true;
+}
+async function getOrder(orderId) {
+  const [order] = rowsOf(
+    await db.execute(sql8`
+      SELECT o.id, o.order_number AS "orderNumber", o.status::text AS status,
+             o.subtotal_clp AS "subtotalClp", o.discount_clp AS "discountClp", o.total_clp AS "totalClp",
+             o.expires_at AS "expiresAt", o.paid_at AS "paidAt",
+             (SELECT json_agg(json_build_object('description', oi.description, 'kind', oi.kind,
+                                                'totalClp', oi.total_clp))
+                FROM order_items oi WHERE oi.order_id = o.id) AS items
+        FROM orders o WHERE o.id = ${orderId}::uuid
+    `)
+  );
+  if (!order) fail("NOT_FOUND", "Esa orden no existe.");
+  return order;
+}
+
+// server/services/payment.service.ts
+init_client();
+import { sql as sql9 } from "drizzle-orm";
+var rowsOf2 = (r) => Array.isArray(r) ? r : r.rows;
+async function applyWebhookEvent(provider, event) {
+  const inserted = rowsOf2(
+    await db.execute(sql9`
+      INSERT INTO payment_events (provider, event_id, event_type, signature_valid, payload)
+      VALUES (${provider}, ${event.eventId}, ${event.type}, ${event.signatureValid},
+              ${JSON.stringify(event.raw)}::jsonb)
+      ON CONFLICT (provider, event_id) DO NOTHING
+      RETURNING id
+    `)
+  );
+  if (!inserted.length) return { duplicated: true, applied: false };
+  const statusMap = {
+    "payment.pending": "pending",
+    "payment.paid": "paid",
+    "payment.failed": "failed",
+    "payment.expired": "expired",
+    "payment.refunded": "refunded"
+  };
+  const newStatus = statusMap[event.type];
+  await db.execute(sql9`
+    UPDATE payments
+       SET status = ${newStatus}::payment_status,
+           paid_at = CASE WHEN ${newStatus} = 'paid' THEN now() ELSE paid_at END,
+           updated_at = now()
+     WHERE provider = ${provider} AND provider_payment_id = ${event.providerPaymentId}
+  `);
+  const [payment] = rowsOf2(
+    await db.execute(sql9`
+      SELECT order_id FROM payments WHERE provider = ${provider} AND provider_payment_id = ${event.providerPaymentId}
+    `)
+  );
+  const orderId = payment?.order_id ?? event.orderId;
+  if (!orderId) return { duplicated: false, applied: false };
+  if (newStatus === "paid") {
+    await db.execute(sql9`
+      UPDATE orders SET status = 'paid', paid_at = now(), updated_at = now()
+       WHERE id = ${orderId}::uuid AND status <> 'paid'
+    `);
+    await fulfillOrder(orderId);
+  } else if (newStatus === "failed" || newStatus === "expired") {
+    await db.execute(sql9`
+      UPDATE orders SET status = ${newStatus === "failed" ? "failed" : "expired"}::order_status, updated_at = now()
+       WHERE id = ${orderId}::uuid AND status = 'awaiting_payment'
+    `);
+  }
+  await db.execute(sql9`
+    UPDATE payment_events SET processed_at = now() WHERE id = ${inserted[0].id}
+  `);
+  return { duplicated: false, applied: true, orderId, status: newStatus };
+}
+async function createPaymentRecord(params) {
+  await db.execute(sql9`
+    INSERT INTO payments (order_id, provider, provider_payment_id, status, amount_clp, redirect_url)
+    VALUES (${params.orderId}::uuid, ${params.provider}, ${params.providerPaymentId}, 'pending',
+            ${params.amountClp}, ${params.redirectUrl})
+  `);
+  await db.execute(sql9`
+    UPDATE orders SET provider = ${params.provider}, updated_at = now() WHERE id = ${params.orderId}::uuid
+  `);
+}
+
+// server/routes/public.routes.ts
 var publicRouter = Router2();
 publicRouter.get(
   "/class-types",
   wrap(async (_req, res) => {
-    const rows = await db.select().from(classTypes).where(and3(eq4(classTypes.isActive, true), eq4(classTypes.isPublic, true))).orderBy(asc(classTypes.sortOrder));
+    const rows = await db.select().from(classTypes).where(and3(eq5(classTypes.isActive, true), eq5(classTypes.isPublic, true))).orderBy(asc(classTypes.sortOrder));
     res.json({ data: rows });
   })
 );
 publicRouter.get(
   "/plans",
   wrap(async (_req, res) => {
-    const rows = await db.select().from(plans).where(and3(eq4(plans.isActive, true), eq4(plans.isPublic, true))).orderBy(asc(plans.sortOrder), asc(plans.priceClp));
+    const rows = await db.select().from(plans).where(and3(eq5(plans.isActive, true), eq5(plans.isPublic, true))).orderBy(asc(plans.sortOrder), asc(plans.priceClp));
     res.json({ data: rows });
   })
 );
@@ -1454,17 +1813,99 @@ publicRouter.post(
     res.status(201).json({ data: { ok: true } });
   })
 );
+var checkoutSchema = z3.object({
+  planSlug: z3.string().min(1),
+  name: z3.string().trim().min(2),
+  email: z3.string().trim().toLowerCase().email(),
+  phone: z3.string().trim().min(6).optional()
+});
+publicRouter.post(
+  "/checkout",
+  checkoutRateLimit,
+  wrap(async (req, res) => {
+    const input = checkoutSchema.parse(req.body);
+    const order = await createPlanOrder(input, input.planSlug);
+    const provider = getPaymentProvider();
+    const session = await provider.createCheckout({
+      orderId: order.orderId,
+      orderNumber: order.orderNumber,
+      amountClp: order.totalClp,
+      description: order.description,
+      customer: { id: order.studentId, email: input.email, name: input.name },
+      returnUrl: `${appUrl()}/pago/resultado?orderId=${order.orderId}`,
+      cancelUrl: `${appUrl()}/planes`,
+      webhookUrl: `${appUrl()}/api/webhooks/payments/${provider.id}`,
+      idempotencyKey: `order-${order.orderId}`
+    });
+    await createPaymentRecord({
+      orderId: order.orderId,
+      provider: provider.id,
+      providerPaymentId: session.providerPaymentId,
+      amountClp: order.totalClp,
+      redirectUrl: session.redirectUrl
+    });
+    res.status(201).json({ data: { orderId: order.orderId, redirectUrl: session.redirectUrl } });
+  })
+);
+publicRouter.get(
+  "/checkout/orders/:id",
+  wrap(async (req, res) => {
+    const order = await getOrder(req.params.id);
+    res.json({ data: order });
+  })
+);
+publicRouter.get(
+  "/checkout/mock/:token",
+  wrap(async (req, res) => {
+    const payload = mock.readToken(req.params.token);
+    if (!payload) {
+      return res.status(410).json({ error: { code: "ORDER_EXPIRED", message: "Este enlace de pago venci\xF3." } });
+    }
+    res.json({ data: payload });
+  })
+);
+publicRouter.post(
+  "/checkout/mock/:token/:outcome",
+  wrap(async (req, res) => {
+    if (env().PAYMENTS_PROVIDER !== "mock") {
+      return res.status(403).json({ error: { code: "FORBIDDEN", message: "La pasarela simulada est\xE1 desactivada." } });
+    }
+    const payload = mock.readToken(req.params.token);
+    if (!payload) {
+      return res.status(410).json({ error: { code: "ORDER_EXPIRED", message: "Este enlace de pago venci\xF3." } });
+    }
+    const outcome = req.params.outcome === "approved" ? "payment.paid" : "payment.failed";
+    const body = JSON.stringify({
+      event_id: `mock_evt_${payload.providerPaymentId}_${outcome}`,
+      type: outcome,
+      payment_id: payload.providerPaymentId,
+      order_id: payload.orderId,
+      amount: payload.amountClp,
+      ts: (/* @__PURE__ */ new Date()).toISOString()
+    });
+    const event = await mock.parseWebhook({
+      headers: { "x-mock-signature": hmac(env().MOCK_WEBHOOK_SECRET, body) },
+      rawBody: Buffer.from(body),
+      query: {}
+    });
+    if (!event.signatureValid) {
+      return res.status(401).json({ error: { code: "FORBIDDEN", message: "Firma inv\xE1lida." } });
+    }
+    const result = await applyWebhookEvent("mock", event);
+    res.json({ data: { ...result, returnUrl: `/pago/resultado?orderId=${payload.orderId}` } });
+  })
+);
 
 // server/routes/admin.routes.ts
 init_client();
 import { Router as Router3 } from "express";
-import { sql as sql8 } from "drizzle-orm";
+import { sql as sql10 } from "drizzle-orm";
 import { z as z4 } from "zod";
 var adminRouter = Router3();
 var owner = requireRole("owner");
-var rowsOf = (r) => Array.isArray(r) ? r : r.rows;
+var rowsOf3 = (r) => Array.isArray(r) ? r : r.rows;
 adminRouter.get("/plans", owner, wrap(async (_req, res) => {
-  const rows = rowsOf(await db.execute(sql8`
+  const rows = rowsOf3(await db.execute(sql10`
     SELECT id, slug, name, segment::text AS segment, period_months AS "periodMonths", credits,
            price_clp AS "priceClp", validity_days AS "validityDays",
            requires_verification AS "requiresVerification", is_drop_in AS "isDropIn",
@@ -1485,19 +1926,19 @@ adminRouter.patch("/plans/:id", owner, wrap(async (req, res) => {
     badge: z4.string().max(40).nullable().optional()
   }).parse(req.body);
   const sets = [];
-  if (input.name !== void 0) sets.push(sql8`name = ${input.name}`);
-  if (input.priceClp !== void 0) sets.push(sql8`price_clp = ${input.priceClp}`);
-  if (input.credits !== void 0) sets.push(sql8`credits = ${input.credits}`);
-  if (input.validityDays !== void 0) sets.push(sql8`validity_days = ${input.validityDays}`);
-  if (input.isPublic !== void 0) sets.push(sql8`is_public = ${input.isPublic}`);
-  if (input.isActive !== void 0) sets.push(sql8`is_active = ${input.isActive}`);
-  if (input.badge !== void 0) sets.push(sql8`badge = ${input.badge}`);
+  if (input.name !== void 0) sets.push(sql10`name = ${input.name}`);
+  if (input.priceClp !== void 0) sets.push(sql10`price_clp = ${input.priceClp}`);
+  if (input.credits !== void 0) sets.push(sql10`credits = ${input.credits}`);
+  if (input.validityDays !== void 0) sets.push(sql10`validity_days = ${input.validityDays}`);
+  if (input.isPublic !== void 0) sets.push(sql10`is_public = ${input.isPublic}`);
+  if (input.isActive !== void 0) sets.push(sql10`is_active = ${input.isActive}`);
+  if (input.badge !== void 0) sets.push(sql10`badge = ${input.badge}`);
   if (!sets.length) return res.json({ data: { ok: true } });
-  await db.execute(sql8`UPDATE plans SET ${sql8.join(sets, sql8`, `)} WHERE id = ${req.params.id}::uuid`);
+  await db.execute(sql10`UPDATE plans SET ${sql10.join(sets, sql10`, `)} WHERE id = ${req.params.id}::uuid`);
   res.json({ data: { ok: true } });
 }));
 adminRouter.get("/class-types", owner, wrap(async (_req, res) => {
-  const rows = rowsOf(await db.execute(sql8`
+  const rows = rowsOf3(await db.execute(sql10`
     SELECT id, slug, name, short_description AS "shortDescription", description,
            discipline::text AS discipline, level::text AS level,
            default_duration_min AS "defaultDurationMin", default_capacity AS "defaultCapacity",
@@ -1515,14 +1956,14 @@ adminRouter.patch("/class-types/:id", owner, wrap(async (req, res) => {
     isActive: z4.boolean().optional()
   }).parse(req.body);
   const sets = [];
-  if (input.name !== void 0) sets.push(sql8`name = ${input.name}`);
-  if (input.shortDescription !== void 0) sets.push(sql8`short_description = ${input.shortDescription}`);
-  if (input.description !== void 0) sets.push(sql8`description = ${input.description}`);
-  if (input.dropInPriceClp !== void 0) sets.push(sql8`drop_in_price_clp = ${input.dropInPriceClp}`);
-  if (input.isPublic !== void 0) sets.push(sql8`is_public = ${input.isPublic}`);
-  if (input.isActive !== void 0) sets.push(sql8`is_active = ${input.isActive}`);
+  if (input.name !== void 0) sets.push(sql10`name = ${input.name}`);
+  if (input.shortDescription !== void 0) sets.push(sql10`short_description = ${input.shortDescription}`);
+  if (input.description !== void 0) sets.push(sql10`description = ${input.description}`);
+  if (input.dropInPriceClp !== void 0) sets.push(sql10`drop_in_price_clp = ${input.dropInPriceClp}`);
+  if (input.isPublic !== void 0) sets.push(sql10`is_public = ${input.isPublic}`);
+  if (input.isActive !== void 0) sets.push(sql10`is_active = ${input.isActive}`);
   if (!sets.length) return res.json({ data: { ok: true } });
-  await db.execute(sql8`UPDATE class_types SET ${sql8.join(sets, sql8`, `)} WHERE id = ${req.params.id}::uuid`);
+  await db.execute(sql10`UPDATE class_types SET ${sql10.join(sets, sql10`, `)} WHERE id = ${req.params.id}::uuid`);
   res.json({ data: { ok: true } });
 }));
 adminRouter.get("/settings", owner, wrap(async (_req, res) => {
@@ -1532,14 +1973,14 @@ adminRouter.get("/settings", owner, wrap(async (_req, res) => {
 adminRouter.patch("/settings", owner, wrap(async (req, res) => {
   const entries = Object.entries(req.body ?? {});
   for (const [key, value] of entries) {
-    await db.execute(sql8`
+    await db.execute(sql10`
       INSERT INTO settings (key, value, updated_by) VALUES (${key}, ${JSON.stringify(value)}::jsonb, ${req.user.id}::uuid)
       ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_by=EXCLUDED.updated_by, updated_at=now()`);
   }
   res.json({ data: { actualizadas: entries.length } });
 }));
 adminRouter.get("/leads", owner, wrap(async (_req, res) => {
-  const rows = rowsOf(await db.execute(sql8`
+  const rows = rowsOf3(await db.execute(sql10`
     SELECT id, name, email, phone, message, interest, status::text AS status, created_at AS "createdAt"
       FROM contact_leads ORDER BY created_at DESC LIMIT 100`));
   res.json({ data: rows });
@@ -1553,7 +1994,7 @@ function registerRoutes(app2) {
     wrap(async (_req, res) => {
       const started = Date.now();
       const result = await db.execute(
-        sql9`SELECT now() AS now, (now() AT TIME ZONE 'America/Santiago')::date AS today`
+        sql11`SELECT now() AS now, (now() AT TIME ZONE 'America/Santiago')::date AS today`
       );
       const rows = Array.isArray(result) ? result : result.rows;
       res.json({

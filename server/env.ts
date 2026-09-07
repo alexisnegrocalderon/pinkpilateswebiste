@@ -11,6 +11,10 @@ const schema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(3001),
   VERCEL_URL: z.string().optional(),
+  /** Pasarela de pago activa. "mock" hasta que Javiera defina la real. */
+  PAYMENTS_PROVIDER: z.enum(["mock", "mercadopago", "flow", "transbank"]).default("mock"),
+  /** Firma HMAC del pagador simulado. Cambiar en producción cuando se configure. */
+  MOCK_WEBHOOK_SECRET: z.string().min(8).default("dev-mock-webhook-secret"),
 });
 
 let cached: z.infer<typeof schema> | null = null;

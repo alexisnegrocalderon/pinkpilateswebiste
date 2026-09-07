@@ -1,6 +1,6 @@
 import { useState } from "react";
+import Link from "next/link";
 import { Check, ChevronDown } from "lucide-react";
-import { CROSSHERO_URL } from "@shared/domain/policy";
 import { clp } from "@/lib/format";
 
 export type Plan = {
@@ -73,15 +73,13 @@ export function PlanStrip({ plan }: { plan: Plan }) {
         </span>
         <span className="sr-only">{abierto ? "Ocultar detalles del plan" : "Ver detalles del plan"}</span>
 
-        <a
-          href={CROSSHERO_URL}
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          href={`/comprar/${plan.slug}`}
           onClick={(e) => e.stopPropagation()}
           className="order-last w-full shrink-0 rounded-full bg-[#FF5C89] px-4 py-2.5 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-[#e14c76] sm:order-none sm:w-auto"
         >
-          Reservar en CrossHero
-        </a>
+          Comprar ahora
+        </Link>
       </div>
 
       {abierto && (
